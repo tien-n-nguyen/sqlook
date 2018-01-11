@@ -1,0 +1,151 @@
+\section{Introduction}
+
+%Web applications have played important roles in several aspects of our
+%society. 
+
+A dynamic Web application is often written in a language such as PHP
+or ASP that communicates with the databases to retrieve dynamic
+data, and then processes and displays them on the client-side
+browsers.
+%In the output on a browser, in addition to the presentation elements,
+%there are the displayed output data that is (in)directly computed from
+%the data retrieved from a database.
+In such a program, there exist program statements that are responsible
+for interacting with the databases, which are called {\em
+database-interaction points}. Before an interaction point, the program
+constructs a string {\em query} from string literals, variables'
+values, functions' returned values, etc. That query is written in a
+query language supported by the database (e.g. SQL). The returned
+result will be processed and displayed on client-side browsers.
+
+%During the execution of the Web program, the string query is
+%constructed and passed to the database to be executed there and the
+%returned results will be stored via a variable(s) in the program for
+%further manipulation or printing.
+
+As in other types of application, dynamic Web applications have failures
+as well. It was reported that there are common program failures in a
+dynamic Web application that~are caused by the interaction and
+passing of data between the application itself and the
+database~\cite{ga-ase11,brooks-icst09}. Localizing faults is a
+crucial task in software maintenance to improve software~quality. 
+%Automatic fault localization is desirable to help reduce the debugging
+%efforts. Recognizing that need, 
+Thus, many researchers developed {\em automated fault localization
+  methods} for traditional, non-database
+applications~\cite{abreu-ochiai-07, tarantula05,liblit-pldi05} and for
+data-centric applications (i.e. single-language database
+programs)~\cite{dor-issta08,litvak10,saha11}. However, little
+attention has been paid to research in {\em database-aware} fault
+localization for dynamic Web applications, i.e., taking into account
+the interaction between the applications and databases via queries.
+
+Clark {\em et al.}~\cite{ga-ase11} introduced an approach for
+database-aware fault localization in a dynamic Web application, which
+is based on Tarantula~\cite{tarantula05} to assign each statement a
+suspiciousness score computed based on the percentage of
+passing/failing test cases executing that statement. However, it has
+key restrictions on its effectiveness. First, it requires users~to provide
+the passing/failing test cases that must produce {\em different unique
+queries} at run-time, i.e. produce different unique SQL structures in
+which one of the structures is~exercised by all failing test
+cases. It uses Tarantula to locate the faulty SQL statement
+corresponding to that structure.
+%sets of data columns/attributes.
+%(i.e. SQL commands involving in unique sets of data table
+%columns/attributes).
+%The provided failing test cases must also correspond to one unique SQL
+%query structure.
+These requirements are too strict since in reality, all
+passing/failing test cases often create SQL queries with the same
+structure and only literal values vary for each query.
+%with the fixed set of attributes and varied literal values.
+%Thus, their approach is not practical because it considers that all
+%test cases produce a unique SQL command.
+Second, it cannot locate detailed faults {\em within} the queries,
+except for faulty SQL attributes.
+%(i.e. erroneous data columns referred by SQL queries).
+
+%Clark {\em et al.}~\cite{ga-ase11} introduce the first approach for
+%database-aware fault localization in a dynamic Web
+%application. However, it has key restrictions. First, it requires
+%users to provide the passing/failing test cases that must produce {\em
+%unique queries} at run-time (i.e. SQL commands involving in unique
+%sets of data table columns/attributes). The provided failing test
+%cases must also correspond to one unique SQL command. These
+%restrictions are very impractical because in reality, all
+%passing/failing test cases often produce SQL commands with the fixed
+%set of attributes and varied literal values. Thus, their approach is
+%not practical because it considers that all test cases produce a
+%unique SQL command. Second, it can not locate detailed faults {\em
+%within} the SQL queries, except the faulty SQL attributes
+%(i.e. erroneous data columns referred to by SQL queries).
+
+To address those issues, we introduce {\tool}, a novel method for
+database-aware fault localization in dynamic PHP Web
+applications with SQL support. We focus on the output errors caused
+by incorrect SQL queries with erroneous \code{WHERE} clauses or by the
+manipulation of the queries' result in PHP. 
+%%%When the predicates in \code{WHERE} clause are faulty, it is very
+%%%likely that the output is incorrect.
+
+{\tool} works in two phases. First, it localizes the faulty SQL
+statements in PHP code. To achieve that, we use a {\em row-based test
+case technique} in which instead of considering the entire output of
+data records as a test case, we leverage the presence/absence of
+individual data rows and their expected values to create more test cases,
+called {\em row-based test cases}. Specifically, an input of the PHP
+program and a present/absent data row in the output forms a row-based
+test case. If such presence/absence is expected, the test case is a
+passing one, and vice versa. Importantly, instead of passing the
+control to the database engine to execute a SQL command as in~Clark
+{\em et al.} \cite{ga-ase11}, we {\em instrument into a PHP
+interpreter} the code~to execute the SQL query and to {\em monitor}
+the evaluation of the predicates of a \code{WHERE} clause to determine
+if they affect the output of individual data records. Then,
+based on whether the \code{WHERE} parts are exercised frequently
+by passing/failing test cases, we apply Tarantula
+metric~\cite{tarantula05} to give a suspiciousness score for each
+\code{WHERE} part. Since our row-based test cases are for individual
+data rows, to compute the scores for PHP statements, {\tool} performs
+{\em row-based slicing} across PHP statements and SQL parts to record
+the PHP statements that are exercised in the output of a 
+row.
+
+After deciding that a \code{WHERE} clause in an SQL query potentially
+has a fault, {\tool} continues to localize specific predicates likely
+responsible for the fault. To do that, when monitoring 
+the execution of an SQL query, it also records the values of the
+predicates in the \code{WHERE} clause.~It~then applies a predicate
+switching technique in which if the boolean value of a predicate after
+switching (i.e., \code{True} becomes \code{False},~or vice versa)
+leads to a different result of the \query{WHERE} clause, which makes a
+\emph{failed} test case become successful, the predicate's original
+value is likely incorrect. The predicates whose switched values
+change the results of more failed test cases are given higher
+suspiciousness scores. Our empirical evaluation 
+shows that {\tool} achieves higher accuracy than Clark {\em et
+al.}~\cite{ga-ase11}.
+%and help developers in reducing debugging efforts. 
+Our key contributions include:
+
+1. A novel database-aware fault localization method for dynamic
+Web applications to locate the faults in PHP statements and the
+predicates of the \code{WHERE} expressions of SQL queries.
+%The prototype tool provides a ranked list of suspicious PHP
+%entities and the SQL predicates,
+
+%2. A prototype database-aware fault-localization tool, {\tool} that
+%provides a ranked list of suspicious PHP entities and the predicates
+%in SQL queries,
+
+2. An empirical evaluation to show {\tool}'s accuracy.
+
+% and usefulness of {\tool} in helping developers in fault
+%localization.
+
+%Section~2 presents a motivating example. Details on {\tool} are
+%described in Sections 3 and 4. Section 5 is for our
+%evaluation. Related work is in Section 6. Conclusions appear~last.
+
+

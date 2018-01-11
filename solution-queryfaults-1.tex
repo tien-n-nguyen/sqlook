@@ -1,0 +1,228 @@
+\subsection{Monitoring the Execution of SQL Queries}
+
+
+
+Fig.~\ref{fig:SQL-Transformed} illustrates the execution of a PHP
+program with SQL queries by a regular PHP interpreter. It contains the
+source code to evaluate various expressions in a PHP program, e.g.
+assignments, variables, function calls, etc. Among them, we focus on
+the evaluation of the PHP
+\code{mysql\_query} statement where database interactions take place
+(the shaded part in the PHP interpreter's source code). The
+interpreter evaluates the \code{mysql\_query} statement by sending the
+SQL query to the database management system (DBMS) and retrieving its
+returned result. Since the actual query execution is performed by the
+DBMS, the interpreter does not have access to the internal operations
+that evaluate the query's \query{WHERE} condition and extract data
+records from database. Therefore, to monitor the evaluation of the
+expressions in the
+\query{WHERE} clause at run time, we instrument the original PHP
+interpreter and replace the source code handling database queries with
+our instrumented code that performs the query's operations
+(Fig.~\ref{fig:SQL-Transformed}).
+
+
+
+%By evaluating the \query{WHERE} condition instead of delegating the evaluation to the DBMS, the instrumented interpreter now has the evaluation results of the \query{WHERE} expression for individual data records.
+
+The operations that fulfill an SQL \query{SELECT} query consist of the
+following: (a) retrieving data from one or more database tables
+specified by the \query{FROM} part of the SQL query, (b) extracting
+the data records that satisfy the criteria specified by the
+\query{WHERE} condition of the SQL query, and (c) projecting the set
+of columns (attributes) given in the \query{SELECT} part of query into
+the final result set. As an example, the SQL query \code{SELECT}
+\code{Name FROM Users WHERE Age $>$= 25 AND Gender = `Female' OR
+Country $<>$ `USA'} retrieves the names of all the users from the
+\code{`Users'} database table that meet the condition \code{Age $>$=
+25 AND Gender = `Female' OR Country $<>$ `USA'}. Our instrumented
+interpreter re-implements these three operations in four steps (shown
+in the instrumented code in Fig.~\ref{fig:SQL-Transformed}). The
+detailed instrumentation execution is shown in
+Fig.~\ref{fig:Instrumented-Code}~and~is explained below. (In our
+implementation, we instrument Quercus (http://quercus.caucho.com/), a
+PHP interpreter, and use JSqlParser
+(http://jsqlparser.sourceforge.net/) to parse SQL code.
+
+%; both are written in Java.)
+
+%~\footnote{In our implementation, \tool{} instruments
+%Quercus (http://quercus.caucho.com/), a PHP interpreter, and uses
+%JSqlParser (http://jsqlparser.sourceforge.net/) to parse SQL queries;
+%both are written in Java.}
+
+\begin{figure*}[tbp]
+  \centering
+  \includegraphics[width=4.6in]{images/Instrumented-Code-2.eps}\\
+  \caption{Instrumented code to monitor the execution of SQL queries}\label{fig:Instrumented-Code}
+\end{figure*}
+
+%\begin{figure*}[tbp]
+%  \centering
+%  \includegraphics[width=0.8\textwidth]{images/Instrumented-Code-1.eps}\\
+%  \caption{Instrumented code to monitor the execution of SQL queries}\label{fig:Instrumented-Code}
+%\end{figure*}
+
+%\vspace{0.02in}
+\textbf{Step 1. Modifying an SQL query:}
+The original SQL query is parsed and modified. Its
+\query{WHERE} part is removed, and~the column set is changed into \code{`*'}
+(i.e., all columns will be retrieved). The \code{ModifiedSql} variable
+now contains the modified SQL query, which retrieves all data from one
+or more database tables (the SQL query may specify a \query{JOIN}
+operation on multiple tables). The \query{WHERE} clause and the column
+set in the original SQL query are also extracted out (to the variables
+\code{WhereExp} and \code{SelectedCols}, respectively) so that the
+rows and columns can be filtered from the modified query's result in
+the next steps. In Fig.~\ref{fig:Instrumented-Code}, the dashed box
+at the top shows an example of an SQL query that is the input of step
+1. The values of the three variables \code{ModifiedSql},
+\code{WhereExp}, and \code{SelectedCols} are shown in the dashed boxes
+coming out of step 1, respectively.
+
+% and will be used to illustrate the following steps.
+
+\vspace{0.04in}
+\textbf{Step 2. Executing the modified SQL query:}
+The modified SQL query obtained from step 1 will be sent to the DBMS
+to be executed there. Compared to the result of the original query,
+the result of the modified query contains all data from the database
+table(s) in which the rows and columns have not been filtered out
+according to the specifications in the original query. In
+Fig.~\ref{fig:Instrumented-Code}, the dashed box coming out of step
+2 (table \code{T}) shows the result after executing the
+\code{ModifiedSql} query.
+
+\vspace{0.04in}
+\textbf{Step 3. Filtering rows:} In this step, \tool{} loops through
+each row \code{R} in table \code{T} and evaluates the expression
+\code{WhereExp} in the \query{WHERE} clause of the original SQL query~for row \code{R}.
+If a row \code{R} satisfies the condition specified
+by \code{WhereExp}, it will be extracted out, in the same way that a
+DBMS processes the original SQL query. In
+Fig.~\ref{fig:Instrumented-Code}, the extracted rows
+(\code{FilteredRows}) are rows 2 and 3 of the \code{Users}
+table. Importantly, by evaluating the individual predicates in the
+\query{WHERE} expression, \tool{} is able to determine whether the
+\query{WHERE} condition evaluates to \code{True} or \code{False} for a
+given row.
+
+\vspace{0.04in}
+\textbf{Step 4. Filtering columns:} In the final step, \tool{}
+extracts the column set specified by the original SQL query from the
+data obtained from step 3. In Fig.~\ref{fig:Instrumented-Code}, the
+final result consists of the names \code{Bob} and \code{Carol},
+which preserves the original query's result as if it was executed by
+the DBMS.
+
+
+
+\vspace{0.06in}
+\noindent {\bf Evaluation Rules.}
+Since SQL is a declarative language, when evaluating the SQL expressions
+in step 3, \tool{} needs~to understand their semantics and implements
+them in the interpreter's
+language. Table~\ref{tab:transformation-rules} shows the rules to
+evaluate an SQL expression $E$ with the data from a given table row
+$R$.
+
+\textbf{Rules 1 and 2:}
+\code{E ::= E1 AND/OR E2}. For an SQL logic expression (e.g. \code{AND}
+and \code{OR}), \tool{} evaluates the two sub-expressions
+\code{E1} and \code{E2}, and returns the result based on the semantics
+of the operator in the expression \code{E}. Other arithmetic
+expressions such as addition, subtraction, and comparison expressions
+(e.g., \code{`='} and \code{`$>$='}) are realized in a similar
+manner.
+
+\textbf{Rule 3:} \code{E ::= E1 BETWEEN E2 AND E3}. \tool{}
+evaluates three expressions \code{E1}, \code{E2}, \code{E3}, and
+checks the condition that the value of \code{E1(R)} is in the
+range of \code{E2(R)} and \code{E3(R)}.
+
+\textbf{Rule 4:} \code{E ::= E' LIKE $Pattern$}. \tool{}
+implements the SQL regular expression $Pattern$ by determining if the
+evaluation result from \code{E'(R)} matches that pattern.
+
+\textbf{Rule 5:} \code{E ::= $Table$ AS $Alias$}. In an SQL query,
+database tables can be referred to via aliases (e.g., the SQL query
+\code{SELECT * FROM Users AS u WHERE u.Age $>=$ 25} assigns the alias
+name \code{`u'} for the \code{Users} table). In such cases, \tool{}
+records the real table name of the alias for later reference.
+
+\textbf{Rule 6:} \code{E ::= $Table$.$Column$}. For an SQL expression
+to access a table column (e.g., \code{`u.Age'}), \tool{} first checks
+if the table name is an alias name, in which case the real table name
+is used. Then, \tool{} retrieves the corresponding table column from
+the current row \code{R}. If the expression does not specify a table
+name, the only table name in the query will be used.
+
+%For example, given SQL query in the motivating example and the row
+%\code{(1, Alice, 20, Female, USA)}, the evaluation result for column
+%\code{Name} is \code{Alice}.
+
+\begin{table}[t]
+    \centering 
+%\scriptsize %\setlength{\tabcolsep}{3pt}
+    \caption{Evaluation Rules for SQL expressions}\label{tab:transformation-rules}
+\begin{tabular}{@{}cll@{}}
+    \toprule
+    \textbf{No.} & \textbf{SQL Expression E} & \textbf{Eval. Result on E for Row R} \\
+    \midrule
+    1.  & E ::= E1 AND E2     &   E(R) $\leftarrow$ E1(R) \&\& E2(R) \\
+    \midrule
+    2.  & E ::= E1 OR E2      &   E(R) $\leftarrow$ E1(R) $||$ E2(R) \\
+    \midrule
+    3.  & E ::= E1 BETWEEN    &   E(R) $\leftarrow$ E2(R) $<=$ E1(R)  \\
+        & \hspace{30pt} E2 AND E3       & \hspace{30pt} \&\& E1(R) $<=$ E3(R) \\
+    \midrule
+    4.  & E ::= E' LIKE               &   $Pattern$.replace(\{`\%', `.*'\}, \{`\_', `.'\}) \\
+        & \hspace{30pt} $Pattern$     &   E(R) $\leftarrow$ match($Pattern$, E'(R)) \\
+    \midrule
+    5.  & E ::= $Table$ AS $Alias$   & $Alias$.RealName $\leftarrow$ $Table$ \\
+    \midrule
+    6.  & E ::= $Table$.$Column$      &   if $Table$ is alias then \\
+        &                               &   \hspace{15pt}$Table$ $\leftarrow$ $Table$.RealName \\
+        &                              & E(R) $\leftarrow$ R.getCol($Table$.$Column$) \\
+    \midrule
+    7.  & E ::= E' IN (\{$E_i$\}),    &   E(R) $\leftarrow$ \{$E_i(R)$\}.contains(E'(R)) \\
+        & \hspace{30pt} $i = 1 \ldots n$ \\
+    \midrule
+    8.  & E ::= EXISTS E'             &   E(R) $\leftarrow$ E'(R) != null \\
+    \midrule
+    9. & E ::= $SubSelect$          &   Send $SubSelect$ to DBMS \\
+       &                            &   Store returned result in E(R) \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Rule 7:} \code{E ::= E' IN (\{$E_i$\}), $i = 1 \ldots n$}.
+\tool{} evaluates \code{E'} and the set of expressions \{$E_i$\}
+and determines if the evaluation result of \code{E'} is contained
+in the evaluation results of \{$E_i$\}. Note that \{$E_i$\} can be
+another SQL \query{SELECT} query.
+
+\textbf{Rule 8:} \code{E ::= EXISTS E'}. \tool{} evaluates \code{E'}
+and checks whether the result is non-empty (not null). Similar to
+rule~7, \code{E'} is often an SQL sub-query.
+
+% which is handled by the next evaluation rule.
+
+\textbf{Rule 9:} \code{E ::= $SubSelect$}. For an expression specifying
+a sub-query, \tool{} sends the sub-query to the DBMS to be
+executed and retrieves its returned result. It monitors only the
+extraction of table rows from the top-level query and transfers the
+executions of all sub-queries (if any) to the DBMS.
+
+%Although the SQL query in the motivating example is simple for
+%illustrative purposes,
+
+\tool{} is also able to handle more complex SQL
+constructs such as \query{JOIN}, \query{ORDER BY}, \query{TOP},
+%\query{ALL}, \query{ANY} and SQL functions such as \query{MAX},
+\query{LEN}, and \query{UCASE}. It performs these operations by
+either re-implementing them or delegating them to the DBMS (step 2 of
+Fig.~\ref{fig:Instrumented-Code} or rule 9 in Table
+\ref{tab:transformation-rules}).
+
+% Currently, \tool{} does not handle \query{UNION}. 

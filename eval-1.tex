@@ -1,0 +1,115 @@
+\subsection{Localizing Database-Related Faults}
+
+%\vspace{0.04in}
+%\noindent {\bf Experiment Setup.} 
+
+%In the first experiment, for each system, we manually and randomly
+%seeded two types of database-related faults: (1) SQL faults in the
+%\query{WHERE} clause of SQL queries, and (2) PHP faults that affect
+%the output of certain rows retrieved from a database query. Each
+%mutant program has a single fault. Then, we created a failed test case
+%that was resulted from the fault in either an SQL query or the PHP
+%code. Table~\ref{tab:eval-database-aware} shows the result. Column
+%\code{Mutants} shows the number of created mutants.
+%Column \code{SQL faults/\% Rank} shows the percentage of statements in
+%the execution trace that a~fixer need not examine by using
+%\tool{}'s ranked list of suspicious statements. For example, for PHP
+%faults, (s)he does not have to examine 86-98\% of the statements in
+%the execution trace. Since the faulty SQL query is ranked at the top
+%by \tool{}, column \code{SQL faults/\% Rank} shows 100\% for all three
+%systems.
+
+In the first experiment, for each system, we manually 
+%and randomly
+seeded two types of database-related faults: (1) SQL faults in the
+\query{WHERE} clause of SQL queries, and (2) PHP faults that affect
+the output data
+%of certain rows 
+retrieved from a database query. For (1), we mutated the operators of
+the predicates in the \query{WHERE} clauses, while for (2), we used
+the same mutation strategy as in the experiment in Clark {\em et
+al.}~\cite{ga-ase11}. Each mutant program has a single fault. Then, we
+created a failed test case that was resulted from the fault in either
+an SQL query or the PHP code. Table~\ref{tab:eval-database-aware}
+shows the result. Column
+\code{Mutants} shows the number of created mutants.
+Column \code{SQL faults/\% Rank} shows the percentage of statements in
+the execution trace that a~fixer need not examine by using
+\tool{}'s ranked list of suspicious statements. For example, for PHP
+faults, (s)he does not have to examine 86-98\% of the statements in
+the execution trace. Since the faulty SQL query is ranked at the top
+by \tool{}, column \code{SQL faults/\% Rank} shows 100\% for all three
+systems.
+
+\begin{table}[t]
+    \centering
+%    \scriptsize
+    \caption{Subject Systems}\label{tab:subject-systems}
+\begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    \textbf{System} & \textbf{Version} & \textbf{Files} & \textbf{LOC} & \textbf{Query} \\
+    \midrule
+    AddressBook (AB)    & 6.2.12    & 103   & 19K   & 52  \\ %184 (avg LOC) \\
+    SchoolMate (SM)     & 1.5.4     & 63    & 50K   & 295 \\ %127 (avg LOC) \\
+    ZenCart (ZC)        & 1.3.9     & 1,118  & 156K  & 2,171   \\ %140 (avg LOC) \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+    \centering
+    \small
+    \caption{Database-aware Fault Localization Results}\label{tab:eval-database-aware}
+\begin{tabular}{@{}lcccccc@{}}
+    \addlinespace
+    \toprule
+        & \multicolumn{2}{@{}c@{}}{\textbf{SQL faults}} & & \multicolumn{2}{@{}c@{}}{\textbf{PHP faults}} \\
+    \cmidrule{2-3} \cmidrule{5-6}
+    \textbf{System} & \textbf{Mutants} & \textbf{\% Rank} & & \textbf{Mutants} & \textbf{\% Rank} \\
+    \midrule
+    AddressBook   & 30  & 100\%     & &  9    & 98\% \\
+    SchoolMate    & 54  & 100\%     & & 15    & 86\% \\
+    ZenCart       & 91  & 100\%     & & 24    & 90\% \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\caption{SQL queries with Unique Set of Attributes}
+\label{tab:sql}
+\begin{tabular}{l|r|r|r|r||r|r}
+  \hline
+  % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+  \#predicates & {\bf 0-1} & {\bf 2-3} & {\bf 4-7} & {\bf 8-10} & {\bf Checked} & {\bf Unique} \\
+  \hline
+  AddressBook & 17  & 2   & 15 &  0 & 34 & 29 \\
+  SchoolMate  & 181 & 25  & 3  &  0 & 36 & 36 \\
+  ZenCart     & 755 & 431 & 135 & 8 & 36 & 36 \\
+  \hline
+  Total       &   &  &  & & 106 & 101 \\
+  \hline
+\end{tabular}
+\end{table}
+
+\vspace{0.05in}
+\noindent {\bf Comparison.} 
+Since \tool{} uses information on individual rows in the test case,
+\tool{} is able to rank the likelihood of faulty entities with one
+test case only. In contrast, the state-of-the-art approach, Clark {\em
+et al.}~\cite{ga-ase11}, was designed to require multiple test cases
+to localize faults. For comparison, we took 106 randomly sampled SQL
+queries and manually examined if a query involves a unique set of
+attributes and varies only at the literal values. To do that, we first
+divided the queries into groups according to the numbers of their
+predicates. The number of sampled queries in each group is
+proportional to its size. In Table~\ref{tab:sql}, the first columns
+show the numbers of SQL queries with the corresponding numbers of
+predicates. Columns \code{Checked} and \code{Unique} show the numbers
+of queries that were checked and have unique sets of attributes,
+respectively. As seen, among 106 random query samples, 101 of them
+involve a unique set of attributes. Clark {\em et al.}~\cite{ga-ase11}
+could not give those SQL statements higher suspicious scores even with
+multiple test cases, thus, could not locate those 101 faults. In
+contrast, {\tool} was able to rank all of them at the highest.

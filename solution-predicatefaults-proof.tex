@@ -1,0 +1,100 @@
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+%\begin{theorem}
+%\label{thm1}
+%Let $P_1$, $P_2$, \ldots, $P_n$ be the predicates in the \query{WHERE} expression of an SQL query. If there is a single fault in only one of the predicates, namely $P_*$, the suspiciousness score of $P_*$ is never less than that of any other predicate:\\
+%$Sus_p(P_*) \ge Sus_p(P_i), \forall i = 1 \ldots n$ and $P_i \neq P_*$.
+%\end{theorem}
+
+%\begin{proof}
+%This theorem can be easily verified due to the assumption of single fault. For any failed test case, switching the value of the faulty predicate $P_*$ will make it and then the whole \query{WHERE} expression have the correct value; thus, produce the expected output. Therefore, the suspiciousness score of $P_*$ is the same as the number of the failed tests. Since the maximum score of any predicate is the number of the failed tests, the suspiciousness score of the faulty predicate is never less than that of any other predicate.
+%\end{proof}
+
+Although Theorem~\ref{thm1} demonstrates that \tool{} never ranks the
+faulty predicate lower than non-faulty ones, it does not help much in
+distinguishing it with the others. The next theorem shows that when
+provided with a good test suite, our technique will be able to locate
+the faulty predicate.
+
+\begin{theorem}
+\label{thm2}
+{\em Let $P_1$, $P_2$, \ldots, $P_n$ be the predicates in the \query{WHERE}
+expression of an SQL query. If there is a single fault in only one of
+the predicates, namely $P_*$, and the test cases cover all possible
+combinations of all predicates' values, the suspiciousness score of
+$P_*$ is greater than that of any other predicate: $Sus_p(P_*) >
+Sus_p(P_i), \forall i = 1 \ldots n$ and $P_i \neq P_*$.}
+\end{theorem}
+
+\begin{proof}
+Let $R_p*$ be a row corresponding to a failed test case where
+$P_*=p*$.  Switching the value of $P_*$ from $p*$ to $\overline{p*}$
+changes the value of the \query{WHERE} clause from the actual one
+$A_p*$ to the expected one $E_p*$ where $A_p* \neq E_p*$. If the test
+cases cover all possible combinations of all predicates' values, there
+exists a row, $R_{\overline{p*}}$, having the same values on all
+non-faulty predicates as in $R_p*$ and $P_*=\overline{p*}$, which also
+corresponds to a failed test case. Since the values of the predicates
+on $R_{\overline{p*}}$ is the same as those on $R_p*$ after switching
+$P_*$, $R_{\overline{p*}}$ will produce $E_p*$ as the actual value of
+\query{WHERE} and $A_p*$ as the expected one. 
+
+Now let us prove that switching any non-faulty predicate $P_i$ cannot
+change the output on either $R_p*$ or $R_{\overline{p*}}$. Because the
+\query{WHERE} expression contains only binary operators ($\vee$ and
+$\wedge$) and contains each predicate $P_*$ or $P_i$ exactly once,
+there always exists an operator $\odot$ having two operands $W_i$ and
+$W_*$ such that they are two boolean expressions, and $W_i$ contains
+$P_i$ and $W_*$ contains $P_*$.  Thus, the
+\query{WHERE} condition can always be expressed in the following form
+$W = W_1 \odot (W_2 \odot \dots (W_i \odot W_*)\dots)$.  Since the two
+rows produce two different values for the \query{WHERE} expression
+($A_p*$ on $R_p*$ and $E_p*$ on $R_{\overline{p*}}$), and $P_*$ is the
+only predicate that has different values among all predicates on the
+two rows, $W_*$ also has different values on them: \code{True} on one
+row and \code{False} on the other. Let us prove this by
+contradiction. Assume that the value of $W_*$ is the same on two rows,
+because all other predicates have the same values on two rows, the
+parts other than $W_*$ also have same values on two rows. Thus, the
+values of the \query{WHERE} clause on two rows are the same, which is
+a contradiction.
+
+If operator $\odot$ in $W_i \odot W_*$ is a logical \code{OR}, since the
+values of $W_*$ on $R_p*$ and $R_{\overline{p*}}$ are different, one
+of them must be \code{True} making $W_i \odot W_*$ always be
+\code{True}. If $\odot$ is a logical \code{AND}, with similar argument, either
+row $R_p*$ or $R_{\overline{p*}}$, which has $W_*=$\code{False}, will
+make $W_i \odot W_*$ always be \code{False}. Thus, on~at least
+one row, the value of $W_i \odot W_*$ is always the same as that of
+$W_*$ regardless of the value of $P_i$. Thus, switching~the value of
+$P_i$ cannot change the value of $W$ on at least one~row.
+
+In brief, there exists certain failed test row(s) where switching
+the single faulty predicate can change the outputs while switching any
+non-faulty one cannot. Thus, the  score of the
+faulty one is greater than those of other predicates.
+\end{proof}
+
+From the proof of Theorem~\ref{thm2}, it can be seen that when the
+test cases cover each possible combination of all predicates' values
+exactly once, given a set of values for non-faulty predicates, there
+are exactly two rows with two different values (\code{True} and
+\code{False}) for the faulty predicate. For any of such pairs, if they
+correspond to failed test cases, switching the faulty predicate will
+change the values of both, while switching any non-faulty predicate
+will change the value of at most one of them. Thus, the
+suspiciousness score of the faulty one is at least twice as many as
+that of any other predicate:
+
+
+\begin{corollary}
+\label{cor}
+{\em Let $P_1$, $P_2$, \ldots, $P_n$ be the predicates in the \query{WHERE}
+expression of an SQL query. If there is a single fault in one of the
+predicates, namely $P_*$, and the test cases cover each possible
+combination of all predicates' values exactly once, the suspiciousness
+score of $P_*$ is at least twice as many as that of any other
+predicate:\\ $Sus_p(P_*) \geq 2 \times Sus_p(P_i), \forall i = 1
+\ldots n$ and $P_i \neq P_*$.}
+\end{corollary}

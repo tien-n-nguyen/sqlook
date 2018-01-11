@@ -1,0 +1,341 @@
+\section{Motivation}
+
+\subsection{Motivating Example}
+
+\begin{table}
+    \centering
+    \footnotesize
+    \caption{The \textsf{Users} database table}\label{tab:users-table}
+\begin{tabular}{lllll}
+  \addlinespace
+  \toprule
+  % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+  \textbf{ID} & \textbf{Name} & \textbf{Age} & \textbf{Gender} & \textbf{Country} \\
+  \midrule
+  1 & Alice & 20 & Female & USA \\
+  2 & Bob & 20 & Male & Canada \\
+  3 & Carol & 25 & Female & Canada \\
+  4 & Daniel & 30 & Male & USA \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+Web applications are often developed with dynamic data. The data is
+usually stored in databases, such as in the table shown in
+Table~\ref{tab:users-table}. The \code{Users} database table
+contains four rows (\emph{data records}). The five columns of the
+table indicate five \emph{attributes} associated with each record. For
+example, the first record has the information on a user with
+the attributes \code{ID=1, Name=Alice, Age=20, Gender=Female}, and
+\code{Country=USA}. This data can then be accessed or updated from the
+Web application through SQL queries. For instance, the SQL query
+\code{``SELECT Name FROM Users WHERE Age = 20''} returns a
+\emph{result set} containing the names of all users whose age is
+20.
+
+As a Web application interacts with a database through SQL queries,
+database-specific failures can occur. Fig.~\ref{fig:example-phpcode}
+shows an example of a PHP function that produces incorrect output
+values due to an error in its SQL query. The purpose of the function
+is to display the names of the users from the \code{Users} table
+(Table~\ref{tab:users-table}) that satisfy a searching criteria (by
+\code{age, gender}, or \code{country}). First, the connection to the
+database is established (lines 1-2,
+Fig.~\ref{fig:example-phpcode}). The \code{\$sql} variable (line 3)
+contains the SQL query that retrieves the users' names for a given
+search input. This query is then sent to the database server to be
+executed via the PHP function \code{mysql\_query} (line 4), and the
+returned result set is stored in the variable
+\code{\$result}. Finally, the code on lines 5-7 is used to loop
+through the records in the result set and display the corresponding
+names of the users found via the search. Note that this function
+contains an SQL fault: on line 3, the operator in the last predicate
+\code{Country $<>$ `\$country'} of the SQL query should be \code{`='}
+instead of \code{`$<>$'}.
+
+\begin{figure}[t]
+    {\footnotesize\sffamily
+    %\setlength{\tabcolsep}{6pt}
+    \renewcommand{\arraystretch}{1.3}
+    {\normalfont\normalsize A PHP function with an SQL query error on line 3:}\\
+\begin{tabular}{@{}p{\columnwidth}@{}}
+    \toprule
+    function displaySearchResults(\$age, \$gender, \$country) \{ \\
+    1\hspace{5pt}\$con = mysql\_connect(`localhost', `admin', `password'); \\
+    2\hspace{5pt}mysql\_select\_db(`my\_database', \$con); \\
+    3\hspace{5pt}\$sql = ``SELECT Name FROM Users WHERE Age $>=$ \$age \\
+    \hspace{20pt}AND Gender = `\$gender' OR \textbf{Country $<>$ `\$country'} ''; \\
+    4\hspace{5pt}\$result = mysql\_query(\$sql); \\
+    5\hspace{5pt}while(\$row = mysql\_fetch\_array(\$result)) \{ \\
+    6\hspace{15pt}echo \$row[`Name'] . `$<$br $/>$'; \\
+    7\hspace{5pt}\} \} \\
+    \bottomrule
+\end{tabular}
+
+\vspace{5pt}
+{\normalfont\normalsize Expected SQL query on line 3:}\\
+\begin{tabular}{@{}p{\columnwidth}@{}}
+    \toprule
+    3\hspace{5pt}\$sql = ``SELECT Name FROM Users WHERE Age $>=$ \$age \\
+    \hspace{20pt}AND Gender = `\$gender' OR \textbf{Country = `\$country'} ''; \\
+    \bottomrule
+\end{tabular}}
+    \caption{An PHP function with an SQL query error}\label{fig:example-phpcode}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \footnotesize
+\begin{minipage}[t]{0.985\columnwidth}
+Search Input: \textsf{\$age=25, \$gender=`Female', \$country=`USA'}
+\end{minipage}
+
+\vspace{4pt}
+\begin{minipage}[t]{0.63\columnwidth}
+Actual SQL query:
+\begin{lstlisting}[numbers=none,xleftmargin=4pt]
+SELECT Name FROM Users WHERE
+    Age >= 25 AND Gender = `Female'
+        OR @\textbf{Country$<>$`USA'}@
+\end{lstlisting}
+\end{minipage}
+\hspace{0.03\columnwidth}
+\begin{minipage}[t]{0.30\columnwidth}
+Actual output:
+\begin{lstlisting}[numbers=none,xleftmargin=4pt]
+Bob
+Carol
+\end{lstlisting}
+\end{minipage}
+
+\begin{minipage}[t]{0.63\columnwidth}
+Expected SQL query:
+\begin{lstlisting}[numbers=none,xleftmargin=4pt]
+SELECT Name FROM Users WHERE
+    Age >= 25 AND Gender = `Female'
+        OR @\textbf{Country=`USA'}@
+\end{lstlisting}
+\end{minipage}
+\hspace{0.03\columnwidth}
+\begin{minipage}[t]{0.30\columnwidth}
+Expected output:
+\begin{lstlisting}[numbers=none,xleftmargin=4pt]
+Alice
+Carol
+Daniel
+\end{lstlisting}
+\end{minipage}
+%
+%\vspace{-7pt}
+    \caption{Output of the PHP function in Fig.~\ref{fig:example-phpcode}}\label{fig:example-output}
+\end{figure}
+
+%for a given test case
+
+
+
+Due to that error in the SQL query, the function does~not display the
+expected results. Fig.~\ref{fig:example-output} shows the actual and
+expected output values given the search input \code{\$age=25,
+\$gender=`Female', \$country=`USA'}. In the correct SQL query, the
+three-predicate condition determining the values in the returned
+result set is: \code{Age $>=$ 25} \code{AND} \code{Gender = `Female'}
+\code{OR} \code{Country = `USA'}. Since the actual query has a fault
+in the last predicate, there is a mismatch between its actual and
+expected outputs. As seen, Alice's and Daniel's names are expected to
+be found in the result, but are not displayed. Meanwhile, Bob's name
+is included in the actual output although it must not.
+
+%Alice and Daniel should be included in the returned result whereas Bob should not.
+
+\begin{figure}[t]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{2pt}
+    \renewcommand{\arraystretch}{1.1}
+{\sffamily
+\begin{tabular}{@{}llllll@{}}
+    \toprule
+                                                                                    & \multicolumn{4}{c}{Test Cases} & Sus.\\
+                                                                                    \cmidrule{2-5}
+    function displaySearchResults(\$age, \$gender, \$country) \{                    & 1         & 2         & \ldots         & $n$ \\
+    \ldots                                                                          & $\bullet$ & $\bullet$ & \ldots    & $\bullet$ & 0.5\\
+    4\hspace{5pt}\$result = mysql\_query(\$sql);                                   & $\bullet$ & $\bullet$ & \ldots    & $\bullet$ & 0.5\\
+    4$\ast$\hspace{10pt}SELECT...Age$>$=? AND Gender=? OR Country$<>$?                  & $\bullet$ & $\bullet$ & \ldots    & $\bullet$ & \textbf{0.5}\\
+    5\hspace{5pt}while(\$row = mysql\_fetch\_array(\$result)) \{                    & $\bullet$ & $\bullet$ & \ldots    & $\bullet$ & 0.5\\
+    6\hspace{20pt}echo \$row[`Name'] . `$<$br /$>$';                                    & $\bullet$ & $\bullet$ & \ldots    & $\bullet$ & 0.5\\
+    \midrule
+    Pass/Fail Status                                                                & F       & P     & \ldots    & F \\
+    \bottomrule
+\end{tabular}
+}
+    \caption{Suspiciousness scores of the PHP statements and SQL queries in Fig.~\ref{fig:example-phpcode} computed using the technique by Clark et al. and Tarantula metric}\label{fig:suspiciousness}
+\end{figure}
+
+%Given the mismatch between the actual output and the expected one, 
+Given such mismatch, it is not obvious which part of the program
+accounts for the error. In this example, the fault lies at a predicate
+of an SQL query, whereas the Web application is written in
+PHP. Moreover, the actual execution of the SQL query occurs at the
+database server, which is separate from the main PHP program where the
+SQL query is created. Thus, the process of localizing this type of
+fault needs to be \emph{database-aware}, namely taking into account
+the interaction between the Web application and the database via
+queries.
+
+Although there exist many fault localization techniques for
+single-language programs (e.g. \cite{abreu-ochiai-07},
+\cite{tarantula05}),
+%\cite{liblit-pldi05}) 
+and data-centric programs (e.g. \cite{dor-issta08}, \cite{litvak10},
+\cite{saha11}), little attention has been given to database-specific
+faults in a multilingual Web application.~A state-of-the-art approach
+in database-aware fault localization for Web applications is
+Clark {\em et al.}~\cite{ga-ase11}. Their tool monitors SQL queries
+generated at runtime and compute the \emph{suspiciousness} scores for
+those SQL queries and their attributes, as well as the
+statements in the main program. Similar to other statistical fault
+localization methods (e.g. Tarantula~\cite{tarantula05} and
+Ochiai~\cite{abreu-ochiai-07}), the idea in computing
+suspiciousness scores is to contrast the runtime behaviors of correct
+and incorrect executions of the program. Specifically, if a program
+entity (program statement or predicate) is exercised by more failing
+test cases than passing ones, it is more likely to be responsible for
+the failure, and thus assigned with a higher suspiciousness~score.
+
+Compared with the previous fault localization approaches, Clark {\em
+et al.}'s method~\cite{ga-ase11} is database-aware in that it
+considers SQL queries or SQL attributes as program entities and also
+computes their 
+%corresponding 
+suspiciousness scores. For example, Fig.~\ref{fig:suspiciousness}
+illustrates the computation of suspiciousness scores for the program
+entities in Fig.~\ref{fig:example-phpcode} including SQL
+queries. Line 4$\ast$ shows the SQL query executed by the PHP
+statement \code{mysql\_query} on line 4 at runtime, with the question
+marks indicating literal values (numbers/strings). If the PHP
+\code{mysql\_query} statement executes multiple \emph{unique} SQL
+queries (each with a different set of attributes) in different
+executions, the suspiciousness scores of the individual queries will
+be computed.
+
+That computation is based on the idea that if some of unique
+SQL queries are executed by more failing test cases than passing ones,
+they will have higher scores. This strategy is useful when there are
+multiple unique SQL queries that expose different behaviors in passing
+and failing test cases. However, in practice, a PHP
+\code{mysql\_query} statement often executes only one SQL
+query, in which the set of attributes is fixed, and the concrete SQL
+queries in different executions have the same structure and vary only
+at the literal values. This phenomenon is also reported by the
+authors~\cite{ga-ase11}. As an illustration, the unique query
+in this example (line 4$\ast$ of Fig.~\ref{fig:suspiciousness}) is
+\code{``SELECT Name FROM Users WHERE Age $>$= ? AND Gender = ? OR
+Country $<>$ ?''}, with the set of attributes \code{\{Name, Age,
+Gender, Country\}}.
+
+Since there is one unique SQL query executed by the PHP
+\code{mysql\_query} statement, the coverage of the SQL query in the
+passing and failing test cases is the same as the \code{mysql\_query}
+statement, and therefore its suspiciousness score does not provide
+further information about the location of the fault. 
+%Let us describe the score computation to illustrate this limitation. 
+In Fig.~\ref{fig:suspiciousness}, the bullets indicate the program
+entities that are exercised by a given test case. At the bottom row,
+the letters \code{P} and \code{F} specify a passing and failing test
+case, respectively. Column \code{Sus.} shows the suspiciousness score
+$S(e)$ for a program entity $e$ using the Tarantula
+(\cite{tarantula05}) metric:
+\begin{equation}
+\small
+\label{eq:tarantula}
+    S(e) = \dfrac{\tfrac{Failed(e)}{TotalFailed}}{\tfrac{Passed(e)}{TotalPassed} + \tfrac{Failed(e)}{TotalFailed}}
+\end{equation}
+where $Passed(e)$ is the number of passing test cases that execute
+$e$, $Failed(e)$ is the number of failing test cases that execute $e$,
+and $TotalPassed$ and $TotalFailed$ are the respective total numbers
+of passing and failing test cases.
+
+Although there is a fault in the SQL query, its suspiciousness score
+(0.5) is the same as the PHP \code{mysql\_query} statement that
+executes it. In fact, all the program entities always have the same
+score even when a different suspiciousness metric is used, since the
+same set of program entities is executed in every passing or failing
+test case (regardless of the test suite). From those suspiciousness
+scores,
+% computation results, 
+no further information about the fault is gained. This limitation motivated us
+to develop a new
+%database-aware fault localization technique 
+%method that provides better diagnosis for database-specific failures.
+method to better localize database-specific faults.
+
+\subsection{Approach Overview}
+
+The example illustrates an \emph{incorrect output failure} that may
+occur as a Web application interacts with a database. The incorrect
+%values in the
+returned results are often caused by the way the data records are
+selected from a database table, which is specified by the
+\query{WHERE} clause of an SQL \query{SELECT} query. In this paper, we
+target incorrect output failures due to errors in the \query{WHERE}
+part of SQL queries. Another type of database-specific failure is
+\emph{execution failure}, which occurs if the SQL query has incorrect
+syntax or specifies an invalid operation with the database (e.g. the
+query refers to a non-existent database table or attribute). While
+execution failures can be fixed by checking the syntax of queries and
+ensuring their conformance to the database schemas, incorrect output
+failures are more difficult to resolve since they are caused by
+semantic errors in the queries.
+
+To learn more on SQL queries, we conducted an exploratory study. We
+collected three open-source dynamic Web applications from SourceForge
+(\code{AddressBook}, \code{SchoolMate}, and \code{ZenCart}) with a
+total of 1,284 PHP files and 225 KLOCs. We wrote a tool to analyze
+those files and found 2,518 SQL queries to the databases with 2,672
+predicates in \code{WHERE} clauses. There are almost 2 SQL queries in
+a PHP file. A query could have up to 10 predicates. There are 304
+queries with 3-10 predicates. There are 5-25 lines of PHP code for
+each SQL query. Thus, if a tool such as in Clark {\em et
+al.}~\cite{ga-ase11} reports to developers that a query is faulty
+without details on specific predicates, it would be not efficient for
+them to locate the fault. Those numbers motivated us to develop a tool
+to help localize the defects due to errors in the predicates of
+\code{WHERE} clauses.
+
+In designing our solution, we leverage the fact that the output of a
+query reveals information about the correctness of individual records
+in the output. If the actual output of the program does not match with
+the expected one, we can further analyze individual records in the
+actual output to determine which records result in the mismatch. For
+example, the actual and expected outputs for the given test case in
+Fig.~\ref{fig:example-output} reveal that \code{Carol} is a correct
+record whereas \code{Bob} is an incorrect one. To locate the fault,
+a developer would then examine the three predicates in the SQL query
+that returns \code{Bob}. (S)he would recognize that two
+predicates \code{Age $>$= 25} and \code{Gender = `Female'} evaluate to
+\code{false} since Bob's age is \code{20} and his gender is
+\code{`Male'}. Thus, the first two predicates do not contribute to the
+output of \code{Bob}. Only the last predicate whose value is true
+determines its presence. Thus, the last predicate is most suspicious.
+%The developer could conclude that it most likely causes the fault.
+
+% incorrect output.
+%In fact, it is the source of the fault in this example.
+
+%Note that we assume the table \code{Users} and the table column \code{Name} are correct; otherwise, it would have led to an execution failure, which is not the focus of this paper.
+
+Based on the above ideas, we develop {\tool}, a database-aware fault
+localization method that works at two levels:
+
+(1) \tool{} localizes the {\em faulty SQL query} by monitoring the
+output of individual records and computing the query's suspiciousness
+score based on the correctness of these records;
+
+(2) Given an SQL query that is likely to be faulty, \tool{} examines
+the predicates in the {\em \query{WHERE} part} of the SQL query to
+identify which predicate is responsible for the incorrect output.
+%Next section will explain the step (1).
+
+%, we present these two
+% methods.

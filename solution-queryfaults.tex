@@ -1,0 +1,97 @@
+\section{Localizing Faulty SQL Queries}
+
+%\begin{figure}[tbp]
+%  \centering
+%  \includegraphics[width=\columnwidth]{images/SQL-Transformed2.eps}
+%  \caption{Instrumented PHP interpreter to monitor the execution of SQL queries}\label{fig:SQL-Transformed}
+%\end{figure}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\columnwidth]{images/SQL-Transformed4.eps} %2
+ \caption{Instrumented PHP interpreter to monitor the execution of SQL queries}\label{fig:SQL-Transformed}
+\end{figure}
+
+In a PHP Web application, program faults may be found in regular PHP
+statements or those that interact with the database, called
+\emph{database-interaction points} (e.g. line 4 of
+Fig.~\ref{fig:example-phpcode}). The goal of this step is to
+localize these faults, specifically to decide if a
+database-interaction point contains a fault(s) at its \query{WHERE}
+clause or not. To do that, {\tool} uses
+%the statistical suspiciousness metric
+Tarantula~\cite{tarantula05} to compute the suspiciousness scores for
+all entities in PHP and in SQL \code{WHERE} clauses. To avoid the
+issues as in Clark {\em et al.}~\cite{ga-ase11}'s approach, we have
+following key design strategies:
+
+(1) {\em Row-based test cases}. 
+%As explained in Section 2.2., 
+Instead of viewing the input and entire expected output from the
+database as one test case, we analyze individual data records in
+the actual and expected outputs to create row-based test cases. For
+example, in Fig.~\ref{fig:example-output}, we have 4 row-based test
+cases: 1) the input \code{\$age=25, \$gender=`Female',
+\$country=`USA'} and the output of \code{Alice}'s record, 2) that
+input and the absence of \code{Bob}'s, 3) that input and the output of
+\code{Carol}'s, and 4) that input and the output of \code{Daniel}'s.
+
+(2) {\em Monitoring the execution of PHP and SQL entities via
+instrumentation.} The suspiciousness scores are given to PHP
+statements and SQL \code{WHERE} clause(s). Instead of passing the
+control to the database engine to execute an SQL command as in 
+%Clark {\em et al.}
+\cite{ga-ase11}, {\tool} instruments into an PHP interpreter the code
+to execute the SQL command (Fig.~\ref{fig:SQL-Transformed}) and to
+observe the evaluation of the \code{WHERE} clause with respect to
+every row-based test case.  Because the \code{WHERE} clause's value
+decides if the output of a row-based test case is present or not,
+{\tool} needs to record if that clause is evaluated to \code{True} or
+\code{False}. From that, it knows which part (\code{True} or
+\code{False}) of~a \code{WHERE} clause is exercised for a row-based
+test case. Thus, the suspiciousness metric can now be applied not only
+to PHP code, but also to the deeper level of the two parts of a
+\code{WHERE} clause.
+
+(3) {\em Row-based Slicing across PHP and SQL.} Since {\tool} uses
+row-based test cases, it needs to record the PHP statements that are
+exercised in the execution of such a test case, i.e. the PHP
+statements that are involved in the output of a data record (i.e. a
+row). To do that, during the monitoring in step (2), it computes the
+forward slice corresponding to each data row across the PHP statements
+and the two parts of \code{WHERE}.
+%To do that, {\tool} uses the statistical suspiciousness metric
+%Tarantula~\cite{tarantula05} to compute the suspiciousness scores for
+%all entities in PHP and in SQL \code{WHERE} clause(s). To avoid the
+%issue(s) as in Clark {\em et al.}~\cite{ga-ase11}'s approach, we have
+%following key design strategies:
+
+%In a PHP web application, program faults may be found in regular PHP
+%statements or those that interact with the database system (i.e.,
+%\emph{database-interaction points}). To detect these faults, \tool{}
+%uses a suspiciousness metric $Sus$, which can be any of the existing
+%statistical suspiciousness metrics (such as
+%Tarantula~\cite{tarantula05} and Ochiai~\cite{abreu-ochiai-07}), and
+%computes the suspiciousness scores for all statements in a PHP program
+%including database interaction points. However, as illustrated in the
+%motivating example, the faults that exist in database-interaction
+%points may not be identified by the metric $Sus$. To further handle
+%this type of faults, \tool{} monitors the execution of SQL queries at
+%database-interaction points where the conditions given by the
+%\query{WHERE} parts of the SQL queries are evaluated to select data
+%records from one or more database tables. If the evaluation results of
+%the \query{WHERE} conditions do not meet the expected outcomes for
+%certain records, \tool{} will increase the suspiciousness scores of
+%those \query{WHERE} conditions to indicate that they are likely to
+%contain faults. Unlike the technique proposed by Clark et
+%al.~\cite{ga-ase11}, by monitoring the execution of SQL \query{WHERE}
+%conditions, \tool{} can increase the suspiciousness scores of faulty
+%conditions in SQL queries even when there exists only one unique SQL
+%query per database-interaction point.
+
+\input{solution-queryfaults-1}
+
+\input{solution-queryfaults-2}
+
+\input{solution-queryfaults-3}
+

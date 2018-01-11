@@ -1,0 +1,155 @@
+\section{Empirical Evaluation}
+
+%Let us present our empirical evaluation on \tool{}'s
+%accuracy in localizing faults in Web applications. 
+
+We conducted our empirical evaluation on {\tool}'s accuracy in fault localization with three subject systems
+%from \code{sourceforge.net}
+%with the sizes ranging from 19 KLOC to 156KLOC
+(Table~\ref{tab:subject-systems}).
+%\code{AddressBook} is an application to manage contact information and
+%user groups. \code{SchoolMate} is a web system for managing students,
+%teachers, and classes in a school. The largest subject system,
+%\code{ZenCart}, is an e-commerce application.
+%All of these applications have interactions with a database through
+%SQL queries.
+%%%For each system, the number of SQL queries is shown in the column \code{Query}.
+
+%database-interaction points is shown in the last column \code{DB-I}.
+
+%sub
+
+\input{eval-1}
+
+\subsection{Localizing Faults in SQL's Predicates}
+
+%\subsection{Experiment Setup}
+
+%subject systems table
+
+%%\vspace{0.04in}
+%%\noindent {\bf Experiment Setup.}
+
+In this experiment, we conducted two more studies. In our first study,
+we used the same single-fault mutants for SQL queries as in the
+previous experiment.  Each mutant program contains one single fault in
+a predicate of a given SQL query. In our second study, each mutant
+contains multiple faults.  In each study, we applied our two
+algorithms to localize the seeded faults: (1) \tool{}'s single-fault
+algorithm to detect SQL predicate faults assuming that there is a
+single fault in the query (Section IV.A), and (2) \tool{}'s multi-fault
+algorithm to detect SQL predicate faults with no prior assumption
+about the number of faults (Section IV.B). The output of each algorithm
+is a ranked list of the predicates in the SQL query, with the
+highest-ranked predicate being the most likely one to contain the
+fault. To evaluate {\tool}'s accuracy, we counted the number of times
+that a faulty predicate appears in the top-ranked list of faulty
+predicates returned by {\tool}.
+
+\paragraph{Results on Localizing Single Faults}
+
+%\vspace{0.04in} {\bf A. Results on Localizing Single Faults}
+
+Table~\ref{tab:eval-single-faults} displays the evaluation result of
+our single-fault and multi-fault localization algorithms. Column
+\code{\#M} gives the number of mutants with single faults for each
+system. Under column \code{Single-fault ranks}, the values in the five
+sub-columns show the number of times the seeded fault appears in the
+first to the fifth position of the resulting ranked list of
+\tool{}'s single-fault algorithm.
+%%Since the SQL queries that we used in our study have from 2-5
+%%predicates, we
+Table~\ref{tab:eval-single-faults} shows the top-1 to top-5 results.
+In \code{AddressBook}, \tool{} correctly localized 27 out
+of the 30 seeded faults with a single recommendation. With a ranked
+list of 3 recommendations, it can correctly locate all 30 faults.
+
+%one fault is ranked second in the list and two other faults appear
+%in the third position.
+
+\begin{table}[t]
+    \centering
+    \small
+    \caption{Results on Single Seeded Faults in SQL queries}\label{tab:eval-single-faults}
+    \setlength{\tabcolsep}{3.7pt}
+\begin{tabular}{@{}lcccccccccccc@{}}
+    \toprule
+        &   & \multicolumn{5}{@{}c@{}}{\textbf{Single-fault ranks}} & & \multicolumn{5}{@{}c@{}}{\textbf{Multi-fault ranks}} \\
+    \cmidrule{3-7} \cmidrule{9-13}
+    \textbf{Sys.} & \textbf{\#M} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\
+    \midrule
+    AB     & 30     & 27    & 1     & 2     & -     & -     &   & 27    & 1     & 2     & -     & - \\
+    SM     & 54     & 43    & 11    & -     & -    & -     &   & 41    & 12    & 1     & -     & - \\
+    ZC     & 91     & 77    & 8     & 4     & 2     & -     &   & 77    & 8     & 4     & 2     & - \\
+    \midrule
+%    \%     &        & 84    & 11    & 3     & 1     & 0     &   & 83    & 12    & 4     & 1     & 0 \\
+    \multicolumn{2}{c}{\% coverage}  & 84    & 96    & 99     & 100     & 100     &   & 83    & 95    & 99     & 100     & 100 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+Column \code{Multi-fault ranks} (Table~\ref{tab:eval-single-faults})
+shows the number of times a fault appears in the corresponding
+position in the ranked list of \tool{}'s multi-fault
+algorithm.
+%As seen, the results are {\em comparable} to those produced by the
+%single-fault algorithm.
+In \code{SchoolMate}, the single-fault algorithm performed slightly
+better than multiple-fault algorithm.
+%This is because the multi-fault algorithm does not have the prior
+%knowledge that there is only one single fault in the program, while
+%the other algorithm is specialized toward single faults.
+The last row in Table~\ref{tab:eval-single-faults} (\code{\%
+coverage}) shows the percentage the faults that are covered by the
+corresponding top-ranked list. Overall, around 84\% of the seeded
+faults are correctly identified by \tool{} with a single
+recommendation.  The majority of the faults (96\%) can be found in the
+top-2 results from two algorithms.
+
+\paragraph{Results on Localizing Multiple Faults}
+
+\begin{table}[t]
+    \centering
+%    \scriptsize
+    \caption{Results on Multiple Seeded Faults in SQL queries}\label{tab:eval-multi-faults}
+\begin{tabular}{@{}lcccccccccc@{}}
+    \toprule
+        &   & \multicolumn{4}{@{}c@{}}{\textbf{Single-fault ranks}} & & \multicolumn{4}{@{}c@{}}{\textbf{Multi-fault ranks}} \\
+    \cmidrule{3-6} \cmidrule{8-11}
+    \textbf{Sys.} & \textbf{\#M} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\
+    \midrule
+    AB     & 14     & 9     & 3     & 2     & 0     &   & 10     & 2     & 2     & 0 \\
+    SM     & 27     & 13    & 12    & 2     & 0     &   & 18     & 8     & 1     & 0 \\
+    ZC     & 38     & 19    & 9     & 2     & 8     &   & 19     & 9     & 2     & 8 \\
+    \midrule
+%    \%     &        & 52    & 30    & 8     & 10    &   & 59    & 24     & 6     & 10 \\
+    \multicolumn{2}{c}{\% coverage}  & 52    & 82    & 90     & 100    &   & 60    & 84     & 90     & 100 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+To evaluate how well \tool{} performs on multiple seeded faults, we
+conducted another study in which we seeded two errors for each
+mutant. Table~\ref{tab:eval-multi-faults} shows the results.
+% of \tool{}'s fault localization.
+The rows and columns are similar to those in
+Table~\ref{tab:eval-single-faults} except that column \code{top-1} is
+not applicable since there are two errors. We consider that the faults
+in a mutant are localized in the top-$n$ resulting list if the top-$n$
+list covers both faulty predicates, and one of the faulty predicates
+is ranked at the $n$ position. As seen, in \code{SchoolMate},
+\tool{}'s multi-fault algorithm performed better than the single-fault
+algorithm. Overall, 60\% of mutants have their faults detected in the
+top-2 list, and \tool{}'s top-3 list covers both seeded faults for
+84\% of mutant programs.
+
+\noindent {\bf Time Efficiency.} In our experiments, we also
+measured running time for the localization of each faulty
+program. Each run took less than 1s without counting database
+accessing time.
+
+%84\% of the faults.
+
+%In our implementation, we chose $Sus$ to be the Tarantula metric~\cite{tarantula05}. $Sus$ can be any other suspiciousness metric used in existing coverage-based statistical fault localization methods.
+%Threshold $\sigma$ = ?
+

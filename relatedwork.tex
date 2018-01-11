@@ -1,0 +1,125 @@
+\section{Related Work}
+
+A related work to {\tool} is from Clark {\em et al.}~\cite{ga-ase11},
+%who introduced the first, state-of-the-art technique for 
+In their {\em database-aware} fault localization for Web applications,
+they extended Tarantula~\cite{tarantula05} to monitor at run-time the
+host program's statements, SQL statements and attributes.
+%They extend the idea of the statistical fault localization method in
+%Tarantula~\cite{tarantula05} to monitor at runtime the host program's
+%statement, the SQL statements, and SQL attribute tuples, and to assign
+%them suspicious scores. A static SQL statement in the host program
+%will be executed and become multiple SQL queries in different
+%executions. 
+They assume that those multiple SQL queries must be involved with a
+different set of database attributes. As explained in Sections 1-2,
+it is common in practice that those multiple SQL queries at run-time
+are involved with a fixed set of attributes, and they vary only at the
+literal values.
+%If one of those unique SQL queries with a unique set of attributes is
+%executed by more failing test cases than passing ones, it more likely
+%contributes to the fault and is assigned higher score. However, as
+%shown in Section~2, it is common that those multiple SQL queries at
+%run-time are involved with a fixed set of database attributes, and
+%they vary only at the literal values. 
+Because there is one unique set of attributes, their method would not
+be able to assign the higher score for that SQL statement (Sections
+1-2). 
+%{\tool} is also related to SQLook~\cite{icsm13}. However, 
+There are significant advances from {\tool} over its earlier
+version. First, while our earlier version focused only on bugs in PHP,
+{\tool} also identifies faulty predicates in an SQL query after
+deciding that a WHERE clause is at fault. Second, our study
+on SQL-related bugs in PHP was conducted to motivate our
+approach. Third, we developed a novel row-based slicing across PHP and
+SQL. Finally, we conducted empirical evaluation
+on {\tool} to detect faulty SQL predicates.
+
+There exist fault-localization methods for single-language,
+{\em data-centric} programs~\cite{dor-issta08,litvak10,saha11}, which
+primarily interact with databases to get the data contents, process
+and output them. Saha {\em et al.}~\cite{saha11} introduced a method
+to localize faults in programs in ABAP (an SQL-like language). In
+{\tool}, we apply the idea of using individual rows as test cases as
+in their method.
+%They developed a {\em key-based} slicing algorithm to break the trace
+%into multiple slices where each slice maps to an entry in the output
+%collection. That is, it takes into account the relevance of execution
+%of statements to specific database keys that were used in creating
+%those slices.  Then {\em semantic difference} between the slices that
+%correspond to correct entries and those that correspond to incorrect
+%ones will be computed to identify fault statements. 
+However, they do not aim to support {\em multi-lingual} programs with
+database code embedded in a host program. 
+%%Their slicing cannot work across embedded SQL code.
+
+%In {\tool}, we apply the idea of using individual rows as test cases
+%as in their method.
+
+That method belongs to a class of techniques using dynamic
+slicing~\cite{dor-issta08,litvak10,zhang-pldi04,cleve-icsm10}.
+The fault is likely to be in the statements in the
+program slice of incorrectly computed variables.
+%%%, but not in the ones of correctly computed variables.
+%agrawal-90, cleve-wcre08
+%Hainaut and Cleve~\cite{cleve-icsm10,cleve-wcre08} capture dynamic
+%traces via dynamic slicing and analysis on data-centric, embedded code
+%and SQL logs in order to resolve the input queries being passed to a
+%database in data-intensive systems. Their goal is more toward program
+%evolution comprehension and reverse engineering. Other approaches for
+%fault-localization in data-centric applications utilize static
+%slicing. 
+%PanayaAI~\cite{dor-issta08} computes statically a forward slice from
+%select statements and infers how the returned data is manipulated in
+%an ABAP program. 
+Field-sensitive analysis is used to compute program dependence
+in ERP system domain~\cite{litvak10}.  Other methods rely on
+the differences between passing and failing
+runs~\cite{dallmeier-ecoop05,mani-ase10}.
+
+{\tool} is extended to support for SQL embedded in PHP code from a
+class of statistical fault localization
+methods~\cite{tarantula05,abreu-ochiai-07,liblit-pldi05}.
+%sober05, jones02
+%The idea is that the counts of the exercising of different code
+%elements in passing and failing runs can help localize faults. 
+Such spectrum can be based on several program features such as branch,
+complete-path, data-dependence, output, and execution
+trace~\cite{harrold00,santelices09,zhang-fse09,apollo-tse10},
+%apollo10
+%Other techniques analyze 
+statistical correlations between failure and CFG's
+predicates~\cite{liblit-pldi05}, paths~\cite{holmes-icse09},
+time spectra~\cite{timespectra08}, code
+changes~\cite{stoerzer-fse06}. They are not database-aware.
+
+%ren-issta07
+
+%roposed an approach to localize faults via automated predicate
+%switching. To localize a bug, searching for arbitrary changes to the
+%program state is expensive due to the extremely large search
+%space. Their idea is that the outcome of a branch is only true/false,
+%the number of modified states resulting by predicate switching is far
+%less than those possible through arbitrary state
+%changes~\cite{zhang-icse06}. They showed that
+
+Other methods modify program states at selected points in the
+execution of a failing test. If the fault still occurs, it is likely
+the bug~\cite{cleve-icse05,zhang-icse06,jeffrey-issta08}.  Zhang {\em
+et al.}~\cite{zhang-icse06} localize faults by switching a predicate's
+outcome at runtime. 
+%%They showed that to do so can bring the execution to successful, thus,
+%%help localize a bug. 
+{\tool} localizes faults in the predicates of
+a \code{where} statement. 
+However, their method cannot handle the cases of multiple faults.
+%{\tool} can also handle the cases of multiple faults in those
+%predicates. 
+Mutation testing~\cite{andrews06} has been applied to modify
+an SQL program to assess the adequacy of a test suite~\cite{tuya07}.
+
+% and to study the path divergence of faulty programs~\cite{tuya07}.
+
+%do06, wong10
+
+%tuya06

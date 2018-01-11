@@ -1,0 +1,77 @@
+\subsection{Row-based Slicing across PHP and SQL}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.95\columnwidth]{images/Execution-Trace-1.eps}\\
+  \caption{Execution trace of row-based test cases}\label{fig:Execution-Trace}
+\end{figure}
+
+
+
+During the above monitoring process, {\tool} also records the PHP
+statements and the parts (\code{True} and \code{False}) of
+\code{WHERE} clause(s) that are exercised in the execution of a
+row-based test case, thus, involved in the output of a data row. It
+computes program slices corresponding to each data row.
+%To gather more information about the fault, \tool{} considers each
+%table row as a test case and computes the program slice corresponding
+%to each test case. 
+Figures~\ref{fig:Execution-Trace} and ~\ref{fig:Rowbased-Slicing}
+illustrate the computation of the slices for the example in
+Fig.~\ref{fig:example-phpcode} (with lines 5' and 7 added for
+illustrative purposes). Fig.~\ref{fig:Execution-Trace} shows the
+trace in the execution of our instrumented interpreter. The
+nodes denote the PHP and SQL entities, and the arrows show the order
+in the execution trace. Besides PHP statements, {\tool} needs to
+consider two parts of a \code{WHERE} clause (see lines 4a and 4b).
+%\tool{} introduces a new type of program
+%entity, namely the state of the \query{WHERE} condition in an SQL
+%query (lines 4a and 4b).
+We use \code{1-Alice}, \code{2-Bob}, \code{3-Carol}, and
+\code{4-Daniel} to denote the data records in the result set \code{T}
+after step 2 in Fig.~\ref{fig:Instrumented-Code}, i.e., after
+executing the modified SQL query.
+
+As a PHP entity or SQL part is executed, \tool{} recognizes the
+corresponding processed data row and includes that entity/part into
+the slice of that row-based test case with its order in the execution
+trace. For example, since the \query{WHERE} expression evaluates to
+\code{True} for \code{Bob} and \code{Carol}, line 4a is included in
+the slices of the test cases corresponding to those data rows
+(see Fig.~\ref{fig:Rowbased-Slicing}). Similarly, line 4b is included in
+the slices for \code{1-Alice} and \code{4-Daniel}, corresponding to
+\code{WhereExp = False}. Since only \code{2-Bob} and \code{3-Carol}
+are returned in the query's result, the PHP code on lines 5-6 performs
+two iterations to print out each name. Whenever a PHP row-retrieving
+function such as \code{mysql\_fetch\_array} is executed and returns a
+\emph{non-}\code{null} table row (line 5), \tool{} includes 
+in the slice of the corresponding row-based test case the PHP
+statements having data dependencies with that row. Thus, lines 5, 5',
+and 6 are included in \code{2-Bob}'s and \code{3-Carol}'s slices.
+%the slices for \code{2-Bob} and \code{3-Carol}.
+%executed twice (for \code{2-Bob} and \code{3-Carol})
+%the statements that follow in the slice of the corresponding row-based
+%test case. Therefore, statements 5-6 are included in the slices of
+%\code{Bob} and \code{Carol}.
+As line~5~is executed for \code{1-Alice} and
+\code{4-Daniel}, the variable \code{\$row} is \code{null} and the
+execution exits the \code{while} loop; i.e., no table row is accessed.
+Thus, lines 5' and 6 are not included for \code{1-Alice}'s and
+\code{4-Daniel}'s slices, while line 5 is included for all slices.~Since 
+line 7 (or any next line) is exercised regardless of
+data rows, it will be included in all slices of all test cases.
+Similarly, the PHP statements before line 4 are exercised and included
+in all slices.
+
+%When a statement is not associated with any particular test case
+%(e.g., statements 4, 7, and statement 5 in its last execution),
+%\tool{} includes them in the slices of all test cases. The slices for
+%these row-based test cases are shown in
+%Figure~\ref{fig:Rowbased-Slicing}.
+
+%tbp
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.81\columnwidth]{images/Row-based-Slicing-1.eps}\\ %0.84
+  \caption{Row-based slicing across PHP and SQL}\label{fig:Rowbased-Slicing}
+\end{figure}

@@ -1,0 +1,85 @@
+\subsection{Localizing Predicates with Multiple Faults}
+
+\begin{figure}[t]
+    \centering
+\begin{lstlisting} [
+    emph={function, foreach, do, if, else, end},
+	mathescape=true
+]
+function LocalizeFaults(LogicExpression $E$)
+    Rewrite $E$ as $E_1 \oplus E_2 \ldots E_n$ // $\oplus$ is either $\wedge$ or $\vee$.
+    foreach $E_i$ do
+        Rewrite $E$ as $E_i \oplus \overline{E_i}$, with $\overline{E_i} = E \setminus E_i$
+        Compute $R(E_i)$ and $R(\overline{E_i})$ by predicate switching
+    end
+    $E_m = \{E_i: R(E_i) / (R(\overline{E_i}) + 1) \ge \sigma\}$
+    if $|E_m|$ > 1
+        Report multiple faults $E_m$, then exit
+    if $E_m$ contains only one expression $E_s$
+        if $E_s$ is atomic
+            Report single fault $E_s$, then exit
+        else
+            LocalizeFaults($E_s$)
+\end{lstlisting}
+     \caption{Multiple-Fault Localization Algorithm}
+     \label{fig:algorithm-multiplefaults}
+\end{figure}
+
+%We extend \tool{}'s predicate switching algorithm to work on a more
+%general case 
+
+We extended the algorithm in Section IV.A for general cases
+where a query may have one or more faults in its
+predicates. \tool{} first rewrites the \query{WHERE} condition
+in different forms so that the predicates with faults can be grouped
+together as one combined predicate. In such cases, the multiple faults
+can be seen as one fault in the combined predicate after grouping. It
+then applies predicate switching for a single fault to identify the
+group of predicates that is most likely to contain the faults.
+
+Fig.~\ref{fig:algorithm-multiplefaults} shows our algorithm.
+%%% to localize multiple faults in predicates.
+%%%in the \query{WHERE} expression of an SQL query. 
+Given a logic expression $E$,
+%%% that might contain faults,
+\tool{} rewrites $E$ into one of the following forms (line 2):\\
+\[
+\small
+E =
+\begin{cases}
+    E_1 \wedge E_2 \wedge \ldots E_n, \text{with } n > 1 & \text{(Conjunctive form)} \\
+    E_1 \vee E_2 \vee \ldots E_n, \text{with } n > 1 & \text{(Disjunctive form)} \\
+\end{cases}
+\]
+where each $E_i$ is another logic expression. If $E$ is an
+\emph{atomic} predicate (i.e., $E$ cannot be written in either
+conjunctive or disjunctive form), {\tool} can stop further
+localization. For each predicate $E_i$ in $E$, it splits $E$ into two
+parts: the first part contains only $E_i$, and the second part
+($\overline{E_i}$) contains all the other predicates (line 4). Then,
+it computes the score $R$ for $E_i$ and
+$\overline{E_i}$ using predicate switching (line 5). If
+the faults are all located in the set $\overline{E_i}$, the ratio
+$R(E_i)$ over $R(\overline{E_i})$ will be low, indicating that $E_i$
+is not likely the fault. Otherwise, a high ratio suggests that $E_i$
+might be one of the faults in~$E$.
+
+
+
+After computing the suspiciousness scores for all the predicates in
+$E$, \tool{} selects the set $E_m$ of the predicates whose ratios
+$R(E_i) / (R(\overline{E_i}) + 1)$ exceed a threshold $\sigma$
+(line~7). If there are more than one predicate with a high ratio, it
+reports the $R$ scores of all the predicates in $E$ and highlights the
+predicates in $E_m$ as potentially containing multiple faults (lines
+8-9).~If there is only one predicate $E_s$ with a high score, {\tool}
+checks whether it is an atomic predicate (line 11). For an
+atomic predicate $E_s$, it reports the scores of all the predicates in
+$E$ and identifies $E_s$ as the likely single source of the error
+(line 12). Otherwise, if $E_s$ can be further decomposed into a
+conjunctive or disjunctive form, it recursively calls
+\code{LocalizeFaults} to repeat the fault localization for
+$E_s$ (line 14).
+
+%invokes the
+%recursive function 

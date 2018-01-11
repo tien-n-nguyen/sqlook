@@ -1,0 +1,154 @@
+\subsection{Localizing a Faulty Predicate}
+
+%s with a Single Fault}
+
+\begin{table}
+    \footnotesize
+    \setlength{\tabcolsep}{1.5pt}
+    \centering
+    \caption{\tool{}'s fault localization using predicate switching}\label{tab:predicate-table}
+\begin{tabular}{clllcccc}
+  \addlinespace
+  \toprule
+  \textbf{Row} & \textbf{P1} & \textbf{P2} & \textbf{P3} & \textbf{P1 AND } & \textbf{Act.} & \textbf{Exp.} & \textbf{Passed/} \\
+  &    &   &   & {\bf P2 OR P3}  &  {\bf Output} & {\bf Output} & {\bf Failed}\\ 
+  \midrule
+  1 & False ($\times$) & True & False ($\times$) & False & (none) & Alice & Failed \\
+  2 & False & False & True ($\times$) & True & Bob & (none) & Failed \\
+  3 & True & True & True & True & Carol & Carol & Passed \\
+  4 & True & False ($\times$) & False ($\times$) & False & (none) & Daniel & Failed \\
+  \midrule
+  $R$ score & 1 & 1 & 3 \\
+  \bottomrule
+  \addlinespace
+  \multicolumn{8}{l}{P1: Age $>$= 25 \hspace{1em} P2: Gender = `Female' \hspace{1em} P3: Country $<>$ `USA'}
+\end{tabular}
+\end{table}
+
+%\begin{table*}
+%    \footnotesize
+%    \centering
+%    \caption{Illustration of \tool{}'s fault localization using predicate switching}\label{tab:predicate-table}
+%\begin{tabular}{clllcccc}
+%  \addlinespace
+%  \toprule
+%  \textbf{Row} & \textbf{P1} & \textbf{P2} & \textbf{P3} & \textbf{P1 AND P2 OR P3} & \textbf{Act. Output} & \textbf{Exp. Output} & \textbf{Passed/Failed} \\
+%  \midrule
+%  1 & False ($\times$) & True & False ($\times$) & False & (none) & Alice & Failed \\
+%  2 & False & False & True ($\times$) & True & Bob & (none) & Failed \\
+%  3 & True & True & True & True & Carol & Carol & Passed \\
+%  4 & True & False ($\times$) & False ($\times$) & False & (none) & Daniel & Failed \\
+%  \midrule
+%  $R$ score & 1 & 1 & 3 \\
+%  \bottomrule
+%  \addlinespace
+%  \multicolumn{8}{l}{P1: Age $>$= 25 \hspace{1em} P2: Gender = `Female' \hspace{1em} P3: Country $<>$ `USA'}
+%\end{tabular}
+%\end{table*}
+
+Let us explain our technique to localize a faulty predicate and
+then our generalization to support the localizing of multiple faulty
+ones.  The technique for localizing a single faulty predicate is used
+only internally by {\tool}, while the general algorithm is for localizing
+any numbers of faulty predicates. Table~\ref{tab:predicate-table}
+(called a \emph{predicate table}) illustrates our predicate switching
+technique to localize the faulty predicate for the running example.
+% in Section 2.
+%, assuming that there is \emph{a single fault} in the SQL query. 
+The predicate table contains the evaluation results of individual
+(atomic) predicates in the \query{WHERE} clause. This information is
+recorded at run time as the instrumented PHP interpreter evaluates the
+predicates in the
+\query{WHERE} condition (see Section 3.1). In
+Table~\ref{tab:predicate-table}, the three predicates \code{Age $>$=
+25}, \code{Gender = `Female'}, and \code{Country $<>$ `USA'} are denoted
+by \code{P1}, \code{P2}, and {P3}, respectively. As seen, the
+\query{WHERE} expression (\code{P1 AND P2 OR P3}) for rows 2 and 3
+evaluates to \code{True}, thus the execution returns
+\code{Bob} and \code{Carol} (column \code{Act. Output}). In contrast,
+the \query{WHERE} expression for rows 1 and 4 evaluates to
+\code{False}, thus \code{Alice} and \code{Daniel} are not included in
+the returned result. The columns \code{Exp. Output} and
+\code{Passed/Failed} show the expected output and the passed/failed
+status of the corresponding row-based test case.
+
+%If the actual output (column \code{Act. Output}) is the same as the expected output (column \code{Exp. Output}), the corresponding row (test case) will be marked as \code{Passed}; otherwise, it will be marked as \code{Failed} (column \code{Passed/Failed}).
+
+Given the table row of a \emph{failed} test case, \tool{} attempts to
+switch the current boolean value for one predicate at a time and
+re-evaluates the \query{WHERE} clause with the predicate's new
+value. If the value of the \query{WHERE} clause changes (from
+\code{True} to \code{False} or vice versa), meaning that the given row
+is now a \emph{passed} test case, \tool{} records this event to
+compute the likelihood that the predicate contains a fault. In
+Table~\ref{tab:predicate-table}, those predicates and their
+corresponding rows are marked with the notation $\times$. In the first
+row, if either \code{P1} or \code{P3} is switched from \code{False} to
+\code{True}, the value of the
+\query{WHERE} condition \code{P1 AND P2 OR P3} will change to
+\code{True}, and therefore \code{Alice} will be output as expected. 
+In contrast, changing the value of \code{P2} from \code{True} to
+\code{False} does not affect the original output result. After
+applying predicate switching to all predicates and table rows,
+\tool{} computes the suspiciousness score $R$ for a predicate by
+summing up the total of times its switched value changes a failed test
+case~to a passed one. In Table~\ref{tab:predicate-table}, \code{P3}'s
+$R$ score is 3 whereas \code{P1} and \code{P2}'s scores are 1.
+Thus, the predicate having the highest suspiciousness score
+(\code{P3}) is the one likely containing the fault.
+
+%Therefore, the real fault at the predicate \code{P3} can be localized using the \tool{}'s predicate switching technique.
+
+%\begin{figure}[t]
+%    \centering
+%\begin{lstlisting} [
+%    emph={foreach, in, if, then},
+%	mathescape=true,
+%    xleftmargin=11pt
+%]
+%$R(P_i) \leftarrow 0, \forall $ Predicate $P_i$ in $WhereExp$
+%foreach Failed Test Case $R$
+%    foreach Predicate $P_i$ in $WhereExp$
+%        $P_i(R)$.switchBooleanValue() // $P_i(R)$ = NOT $P_i(R)$
+%        result $\leftarrow$ evaluateExp($WhereExp$, $R$)
+%        if result = ExpectedResult($WhereExp$, $R$) then
+%            $R(P_i)$ = $R(P_i)$ + 1
+%        $P_i(R)$.restoreBooleanValue()
+%\end{lstlisting}
+%    \caption{Predicate switching algorithm to localize single predicate faults}\label{fig:algorithm-singfaults}
+%\end{figure}
+%
+%Figure~\ref{fig:algorithm-singfaults} summarizes \tool{}'s predicate switching technique to localize the fault in a predicate of an SQL query. For each failed test case $R$ and a predicate $P_i$, \tool{} first switches the current value of $P_i$ at row $R$ (line 4) and re-evaluates the \query{WHERE} expression (line 5). If the value of the \query{WHERE} expression after switching is the same as the expected result for row $R$, \tool{} increases the $R$ score of $P_i$ by one (lines 6-7). The value of $P_i(R)$ will then be restored to its original value before \tool{} repeats the same process on other predicates and rows (line 8).
+
+
+%%To show the usefulness of \tool{}'s predicate switching technique, 
+Let us provide the following theorems to give the theoretical evidence
+that for an SQL query with a single predicate fault, the faulty
+predicate always has the highest suspiciousness score; moreover, given
+sufficient test cases, its score is at least double the scores of
+other predicates.
+
+\begin{theorem}
+\label{thm1}
+{\em Let $P_1$, $P_2$, \ldots, $P_n$ be the predicates in the \query{WHERE}
+expression of an SQL query. Suppose that there is a single fault in
+one of the predicates, namely $P_*$, then $R(P_*) \ge R(P_i), \forall
+i = 1 \ldots n$ and $P_i \neq P_*$.}
+\end{theorem}
+
+\begin{proof}
+Let $m$ be the number of failed test cases in the predicate table. For
+a failed test case, switching the value of the faulty predicate $P_*$
+makes the test case passed, since the failed test case is caused by
+the fault in $P_*$. Thus, the $R$ score for $P_*$ is increased by
+one for every failed test case. Overall, the score of
+$P_*$ is $R(P_*) = m$ (1). In contrast, changing the values of other
+predicates may or may not affect the original outcome since they are
+not the real cause of the error. Thus, the $R$ score of a non-faulty
+predicate is either not increased or increased by one for every failed
+test case. It follows that $R(P_i) \le m, \forall i = 1 \ldots n$ and
+$P_i \neq P_*$ (2). From (1) and (2), we have $R(P_*) \ge
+R(P_i), \forall i = 1 \ldots n$ and $P_i \neq P_*$.
+\end{proof}
+
+\input{solution-predicatefaults-proof} 

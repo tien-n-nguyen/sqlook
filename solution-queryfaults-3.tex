@@ -1,0 +1,101 @@
+\subsection{Computing Suspiciousness Scores}
+
+\begin{figure}[t]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{1pt}
+    \renewcommand{\arraystretch}{1.1}
+{\sffamily
+ \scriptsize
+\begin{tabular}{ll@{}ccccl@{}}
+    \toprule
+                   & & \multicolumn{4}{c}{Row-based test case} & Sus.\\
+    \cmidrule{1-1}                                                                  \cmidrule{3-6}
+    function display...(\$age, \$gender, \$country) \{                    & & 1-Alice             & 2-Bob             & 3-Carol   & 4-Daniel \\
+    \ldots                                                                          & & $\bullet$     & $\bullet$     & $\bullet$     & $\bullet$   & 0.5\\
+    4\hspace{5pt}\$result = mysql\_query(\$sql);                                   & & $\bullet$     & $\bullet$     & $\bullet$     & $\bullet$   & 0.5\\
+    4a\hspace{30pt}WhereExp* = True             & &               & $\bullet$     & $\bullet$     &    & 0.25\\
+    4b\hspace{30pt}WhereExp* = False                                           & & $\bullet$     &               &   & $\bullet$   & \textbf{1.0}\\
+    5\hspace{5pt}while(\$row = mysql\_fetch\_array(\$result))\{                   & & $\bullet$  & $\bullet$     & $\bullet$     &  $\bullet$ & 0.5\\
+    6\hspace{20pt}echo \$row[`Name'] . `$<$br /$>$';                                    & &         & $\bullet$     & $\bullet$     &  & 0.25\\
+    \midrule
+    Pass/Fail Status                                                                & & F             & F             & P             & F \\
+    \bottomrule
+    \addlinespace
+    \multicolumn{6}{l}{Test case with \$age = 25, \$gender = `Female', \$country = `USA'}\\
+    \multicolumn{6}{l}{* WhereExp: Age $>$= 25 AND Gender = `Female' OR Country $<>$ `USA'}
+\end{tabular}
+}
+    \caption{Suspiciousness scores computed by \tool{} for Fig.~\ref{fig:example-phpcode}}\label{fig:suspiciousness-improved}
+\end{figure}
+
+%\begin{figure*}[t]
+%    \centering
+%    \footnotesize
+%    %\setlength{\tabcolsep}{6pt}
+%    \renewcommand{\arraystretch}{1.1}
+%{\sffamily
+% \scriptsize
+%\begin{tabular}{llccccl}
+%    \toprule
+%    Test case with \$age = 25, \$gender = `Female', \$country = `USA'               & & \multicolumn{4}{c}{Row-based test case} & Sus.\\
+%    \cmidrule{1-1}                                                                  \cmidrule{3-6}
+%    function displaySearchResults(\$age, \$gender, \$country) \{                    & & 1-Alice             & 2-Bob             & 3-Carol   & 4-Daniel \\
+%    \ldots                                                                          & & $\bullet$     & $\bullet$     & $\bullet$     & $\bullet$   & 0.5\\
+%    4\hspace{10pt}\$result = mysql\_query(\$sql);                                   & & $\bullet$     & $\bullet$     & $\bullet$     & $\bullet$   & 0.5\\
+%    4a\hspace{30pt}WhereExp* = True             & &               & $\bullet$     & $\bullet$     &    & 0.25\\
+%    4b\hspace{30pt}WhereExp* = False                                           & & $\bullet$     &               &   & $\bullet$   & \textbf{1.0}\\
+%    5\hspace{10pt}while(\$row = mysql\_fetch\_array(\$result)) \{                   & & $\bullet$  & $\bullet$     & $\bullet$     &  $\bullet$ & 0.5\\
+%    6\hspace{20pt}echo \$row[`Name'] . `$<$br /$>$';                                    & &         & $\bullet$     & $\bullet$     &  & 0.25\\
+%    \midrule
+%    Pass/Fail Status                                                                & & F             & F             & P             & F \\
+%    \bottomrule
+%    \addlinespace
+%    \multicolumn{6}{l}{* WhereExp: Age $>$= 25 AND Gender = `Female' OR Country $<>$ `USA'}
+%\end{tabular}
+%}
+%    \caption{Suspiciousness scores computed by \tool{} for the PHP function in Figure~\ref{fig:example-phpcode}}\label{fig:suspiciousness-improved}
+%\end{figure*}
+
+Based on the monitoring results, \tool{} computes the suspiciousness
+scores for all program entities, including the \query{WHERE}
+conditions of SQL queries and other statements in the PHP
+program. Fig.~\ref{fig:suspiciousness-improved} illustrates the
+score computation for the example in
+Fig.~\ref{fig:example-phpcode}. A test case is marked as
+\code{Passed(P)} if the presence (or absence) of the
+corresponding record in the actual output is as expected; otherwise,
+it is marked as \code{Failed(F)}. For example, \code{Alice} does not
+appear in the actual output, which is not expected; thus record 1 is a
+\code{Failed} test case. Similarly, \code{Bob} is included in the
+actual output while it should not, thus record 2 is also a
+\code{Failed} test case. The only \code{Passed} test case is record 3,
+where \code{Carol} is output as expected. The bullets for the 
+statements indicate whether the entities are included in the slice for
+the corresponding test case, which is established when \tool{}
+monitors the execution trace of row-based test cases. 
+The column \code{Sus.} shows Tarantula suspiciousness scores. 
+
+%%for the corresponding program entities using Tarantula metric.
+
+% (as explained in the motivating example).
+
+As seen in Fig.~\ref{fig:suspiciousness-improved}, the \code{False}
+part of the \query{WHERE} expression on line 4b has a high
+suspiciousness score (1.0), indicating that the program state when the
+\query{WHERE} of the SQL query is evaluated to \code{False} is likely
+incorrect, (i.e., the result set does not contain the corresponding
+record whereas the record is expected to be included). Also, the
+suspiciousness score of the
+\query{WHERE} expression corresponding to the \code{False} case is
+higher than the score of any other program entity, which suggests that
+the predicates in the \query{WHERE} clause of the SQL query are most
+likely to contain an error. In this example, the fault is located at
+the last predicate of the \query{WHERE} condition (the operator in
+\code{Country $<>$ `\$country'} should be
+\code{`='} instead of \code{`$<>$'}). 
+The suspiciousness scores computed by \tool{} are, thus, useful in
+localizing faulty SQL queries.  
+
+%Next, we will explain how {\tool} localizes faulty predicates in a
+%\code{WHERE} clause.
