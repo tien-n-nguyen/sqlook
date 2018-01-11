@@ -1,0 +1,21 @@
+\begin{abstract}
+Localizing and fixing software faults is an important software
+maintenance task in improving software quality. In a dynamic Web
+application, localizing the faults is challenging due to its dynamic
+nature and the interactions between the application and the
+databases. The faults could occur in the statements in the host
+program or inside the queries that are sent from the application to be
+executed in the database engines. This paper presents {\tool}, a novel
+database-aware fault localization method/tool that is able to locate
+output faults in PHP statements of a dynamic Web application as well
+as in the predicates of the \code{WHERE} expressions in SQL
+queries. In {\tool}, a PHP interpreter is instrumented to execute an
+SQL query and to monitor the evaluation of those SQL predicates to
+determine if they affect the output process of individual data
+records. It performs row-based slicing across PHP statements and SQL
+queries to record the entities that are involved in the output of each
+data row. Finally, it uses predicate switching to identify the
+suspicious predicates in an SQL query. Our empirical evaluation shows
+that {\tool} can achieve higher accuracy than the state-of-the-art
+database-aware fault localization approach.
+\end{abstract}
