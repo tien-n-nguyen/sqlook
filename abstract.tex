@@ -1,21 +1,35 @@
 \begin{abstract}
-Localizing and fixing software faults is an important software
-maintenance task in improving software quality. In a dynamic Web
-application, localizing the faults is challenging due to its dynamic
-nature and the interactions between the application and the
-databases. The faults could occur in the statements in the host
-program or inside the queries that are sent from the application to be
-executed in the database engines. This paper presents {\tool}, a novel
-database-aware fault localization method/tool that is able to locate
-output faults in PHP statements of a dynamic Web application as well
-as in the predicates of the \code{WHERE} expressions in SQL
-queries. In {\tool}, a PHP interpreter is instrumented to execute an
-SQL query and to monitor the evaluation of those SQL predicates to
-determine if they affect the output process of individual data
-records. It performs row-based slicing across PHP statements and SQL
-queries to record the entities that are involved in the output of each
-data row. Finally, it uses predicate switching to identify the
-suspicious predicates in an SQL query. Our empirical evaluation shows
-that {\tool} can achieve higher accuracy than the state-of-the-art
-database-aware fault localization approach.
+Localizing software defects helps developers save time and effort
+in their software maintainance tasks.
+%  
+In a PHP-based Web application, fault localization is not
+straightforward due to the dynamic nature of code generation and the
+complex interactions with the backend database engine(s). A fault
+might occur in the PHP code or within the SQL query in the host
+program that is sent to be to executed in the database engine.
+%
+This paper presents {\tool}, a novel database-aware fault localization
+method/tool that is able to locate output faults in PHP code as well
+as in the predicates of the \code{WHERE} expressions in SQL queries in
+a PHP-based, dynamic Web application.
+%
+In {\tool}, we instrument an PHP interpreter to monitor the execution
+of an SQL query and the evaluation of the SQL predicates to decide
+whether a predicate affects the output of an individual data record.
+To do so, 
+% PHP interpreter is instrumented to execute an SQL query and to
+% monitor the evaluation of those SQL predicates to determine if they
+% affect the output process of individual data records.
+we perform row-based slicing across PHP code and SQL queries to record
+the program entities responsible for the output of each row in a
+database table.
+%
+To locate faulty predicates, we use predicate switching to identify
+the suspicious predicates in an SQL query.
+%
+Our empirical evaluation shows that {\tool} can achieve higher
+accuracy than the state-of-the-art approach. For single-fault
+scenarios, around 84\% of the seeded faults are correctly identified
+by {\tool} with a single recommendation. For multiple-fault scenarios,
+60\% of the cases have their faults detected in the top-2 list.
 \end{abstract}

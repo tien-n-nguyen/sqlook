@@ -1,0 +1,205 @@
+\PassOptionsToPackage{table,xcdraw}{xcolor}
+%\documentclass[sigconf,review, anonymous]{acmart}
+%\documentclass[sigconf,review,screen]{acmart}
+\PassOptionsToPackage{bookmarks=false}{hyperref}
+
+\documentclass[sigconf]{acmart}
+
+\settopmatter{authorsperrow=4}
+
+\usepackage{amsmath}
+\usepackage{booktabs}
+%\usepackage{ctable}
+%\usepackage{enumerate}
+%\usepackage{epsf}
+%\usepackage{fvrb-ex}
+\usepackage{graphicx}
+%\usepackage{latex8}
+%\usepackage{latexsym}
+\usepackage{listings}
+\usepackage{multirow}
+%\usepackage{rotating}
+%\usepackage{times}
+%\usepackage{tweaklist}
+%\usepackage{ulem}
+%\usepackage{url}
+%\usepackage{hyperref}
+\usepackage{textcomp}
+
+\usepackage{balance}
+
+\usepackage{subcaption}
+%\usepackage{tikz}
+\usepackage[skins]{tcolorbox}
+\usepackage{enumitem,kantlipsum}
+\newtcolorbox{myframe}[2][]{%
+  enhanced,colback=white,colframe=black,coltitle=black,
+  sharp corners,
+  toprule=1.0pt,
+  rightrule=0.3pt,
+  leftrule=0pt,
+  bottomrule=0pt,
+  fonttitle=\itshape\scshape\large,
+  left=0pt,right=5pt,top=5pt,bottom=3pt,
+  attach boxed title to top right={yshift=-0.3\baselineskip-0.4pt,xshift=-5mm},
+  boxed title style={tile,size=minimal,left=0.2mm,right=0.5mm,
+    colback=white,before upper=\strut},
+  title=#2,#1
+}
+
+\newcommand{\cf}{\hbox{\emph{cf.}}\xspace}
+\newcommand{\deletia}{\ldots [deletia] \ldots}
+\newcommand{\etal}{\hbox{\emph{et al.}}\xspace}
+\newcommand{\eg}{\hbox{\emph{e.g.,}}\xspace}
+\newcommand{\etc}{\hbox{\emph{etc.}}\xspace}
+\newcommand{\ie}{\hbox{\emph{i.e.,}}\xspace}
+\newcommand{\st}{\hbox{\emph{s.t.}}\xspace}
+\newcommand{\wrt}{\hbox{\emph{w.r.t.}}\xspace}
+\newcommand{\viz}{\hbox{\emph{viz.}}\xspace}
+
+\newcommand{\tool}{SQLoc}
+\newcommand{\code}[1]{{\footnotesize\textsf{#1}}}
+\newcommand{\query}[1]{{\scriptsize\textsf{#1}}}
+
+%\newcommand{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+%\newtheorem{proof}{Proof}
+
+\lstset{
+    language={}, emph={},
+	mathescape=false, escapechar=@,
+	basicstyle=\scriptsize\sffamily,
+    numberstyle=\scriptsize\sffamily,
+    emphstyle=\bfseries,
+    numbers=left, stepnumber=1,
+    frame=single, xleftmargin=15pt, xrightmargin=4pt, framexleftmargin=0pt,  framexrightmargin=0pt, numbersep=7pt, % xleftmargin=11pt
+    columns=flexible, breaklines=true, showspaces=false, showstringspaces=true, showtabs=false, tabsize=4
+}
+
+
+\def\alignauthor{%
+\end{tabular}%
+  \begin{tabular}[t]{p{1.1\auwidth}}\centering}%
+
+
+%\setcopyright{acmcopyright}
+%\acmPrice{15.00}
+%\acmDOI{...}
+%\acmYear{2020}
+%\copyrightyear{2020}
+%\acmISBN{978-1-4503-5573-5/18/11}
+%\acmConference[ICSE '20]{Proceedings of the 42nd International Conference on Software Engineering}{May 23--29, 2020}{Seoul, South Korea}
+%\acmBooktitle{Proceedings of the 42nd International Conference on Software Engineering (ICSE '20), May 23--29, 2020, Seoul, South Korea}
+
+\copyrightyear{2020}
+\acmYear{2020}
+\setcopyright{acmcopyright}
+\acmConference[ASE '20]{35th International Conference on Automated Software Engineering}{Sep 21--25, 2020}{Melbourne, Australia}
+\acmBooktitle{35th International Conference on Automated Software Engineering (ASE '20), Sep 21--25, 2020, Melbourne, Australia}
+\acmPrice{15.00}
+\acmDOI{10.1145/3377811.3380926}
+\acmISBN{978-1-4503-7121-6/20/05}
+
+\begin{document}
+
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+%\title{{\tool}: A Lightweight Approach for Method Name Consistency Checking}
+%\title{Recommending Natural Method Names and Checking Method Name Consistencies}
+%\title[]{Checking Method Name Consistencies and\\ Suggesting Natural Names}
+
+\title[{\tool}: Locating PHP and SQL Faults in PHP-Based Web Applications]{{\tool}: Locating Faults in PHP and SQL code\\ for PHP-Based Web Applications}
+
+
+%%%---- AUTHORS BLOCK ------
+%Son, Hung, Trinh, Tien
+
+%\author{Son Nguyen}
+%\affiliation{
+%\institution{Univ. of Texas-Dallas, USA}
+%}
+%\email{sonnguyen@utdallas.edu}
+%\author{Hung Phan}
+%\affiliation{
+%\institution{Iowa State Univ., USA}
+%}
+%\email{hungphd@iastate.edu}
+%\author{Trinh Le}
+%\affiliation{
+%\institution{U. of Eng. \& Tech., Vietnam}
+%}
+%\email{trinhlk@vnu.edu.vn}
+%\author{Tien N. Nguyen}
+%\affiliation{
+%\institution{Univ. of Texas-Dallas, USA}
+%}
+%\email{tien.n.nguyen@utdallas.edu}
+
+\author{Anonymous Authors}
+\affiliation{
+\institution{Affiliation Names}
+}
+\email{name@domain}
+
+%%%-------------------------
+
+%\renewcommand{\shortauthors}{Nguyen, Phan, Le, and Nguyen}
+\renewcommand{\shortauthors}{Anonymous Authors}
+
+\input{abstract}
+
+%%%--- META DATA BLOCK ----
+
+%\settopmatter{printacmref=true, printccs=true, printfolios=false}
+
+\setcopyright{none}
+
+\settopmatter{printacmref=false, printfolios=false}
+
+%\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote
+
+%\begin{CCSXML}
+%<ccs2012>
+%<concept>
+%<concept_id>10011007.10011006.10011073</concept_id>
+%<concept_desc>Software and its engineering~Software maintenance tools</concept_desc>
+%<concept_significance>500</concept_significance>
+%</concept>
+%</ccs2012>
+%\end{CCSXML}
+
+%\ccsdesc[500]{Software and its engineering~Software maintenance tools}
+
+%\keywords{Naturalness of Source Code; Program Entity Name Suggestion; Deep Learning}
+
+%%%------------------------
+
+
+
+\maketitle
+
+\input{introduction}
+\input{motivation}
+\input{solution}
+\input{evaluation}
+\input{relatedwork}
+\input{conclusions}
+
+%\section*{Acknowledgments}
+%This work was supported in part by the US National Science Foundation
+%(NSF) grants CCF-1723215, CCF-1723432, TWC-1723198, CCF-1518897, and
+%CNS-1513263.
+
+\newpage
+
+\balance
+
+\bibliographystyle{ACM-Reference-Format}
+%\bibliographystyle{plain}
+%\bibliography{ccf12}
+\bibliography{ccf12,babelref}
+\end{document}

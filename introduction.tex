@@ -1,69 +1,93 @@
 \section{Introduction}
 
-%Web applications have played important roles in several aspects of our
-%society. 
+Web applications have played important roles in several aspects of our
+society. In dynamic Web, a program, that is written in a host
+language, e.g., PHP or ASP, interacts with a database engine to
+retrieve, process, and present the data in a Web browser. In such a
+program, there are statements that are used to construct a {\em query}
+from string literals, variables' values, the values returned from
+function calls, etc. A popular query language supported by several
+database engines is SQL. The statements in a PHP/ASP program that
+connect and communicate those queries to the database engine are
+referred to as {\em database-interaction points}~\cite{ga-ase11}. The
+results returned from a database are processed in displayed in a Web
+browser.
 
-A dynamic Web application is often written in a language such as PHP
-or ASP that communicates with the databases to retrieve dynamic
-data, and then processes and displays them on the client-side
-browsers.
-%In the output on a browser, in addition to the presentation elements,
-%there are the displayed output data that is (in)directly computed from
-%the data retrieved from a database.
-In such a program, there exist program statements that are responsible
-for interacting with the databases, which are called {\em
-database-interaction points}. Before an interaction point, the program
-constructs a string {\em query} from string literals, variables'
-values, functions' returned values, etc. That query is written in a
-query language supported by the database (e.g. SQL). The returned
-result will be processed and displayed on client-side browsers.
+
+%A dynamic Web application is often written in a language such as PHP
+%or ASP that communicates with the databases to retrieve dynamic
+%data, and then processes and displays them on the client-side
+%browsers.
+%In such a program, there exist program statements that are responsible
+%for interacting with the databases, which are called {\em
+%database-interaction points}. Before an interaction point, the program
+%constructs a string {\em query} from string literals, variables'
+%values, functions' returned values, etc. That query is written in a
+%query language supported by the database (e.g. SQL). The returned
+%result will be processed and displayed on client-side browsers.
 
 %During the execution of the Web program, the string query is
 %constructed and passed to the database to be executed there and the
 %returned results will be stored via a variable(s) in the program for
 %further manipulation or printing.
 
-As in other types of application, dynamic Web applications have failures
-as well. It was reported that there are common program failures in a
-dynamic Web application that~are caused by the interaction and
-passing of data between the application itself and the
-database~\cite{ga-ase11,brooks-icst09}. Localizing faults is a
-crucial task in software maintenance to improve software~quality. 
-%Automatic fault localization is desirable to help reduce the debugging
-%efforts. Recognizing that need, 
-Thus, many researchers developed {\em automated fault localization
-  methods} for traditional, non-database
-applications~\cite{abreu-ochiai-07, tarantula05,liblit-pldi05} and for
+Automated fault localization is important in helping developers save
+time and effort to fix the faults. However, localizing faults in such
+a dynamic Web application is challenging due to the interaction
+between the host program and the database engine.
+%As in other types of application, dynamic Web applications have failures
+%as well.
+Several researchers have reported the faults caused by the data
+communication between the application and the database
+engine~\cite{ga-ase11,brooks-icst09}. While several automated
+approaches have been introduced for traditional program
+code~\cite{abreu-ochiai-07, tarantula05,liblit-pldi05} and
 data-centric applications (i.e. single-language database
-programs)~\cite{dor-issta08,litvak10,saha11}. However, little
-attention has been paid to research in {\em database-aware} fault
-localization for dynamic Web applications, i.e., taking into account
-the interaction between the applications and databases via queries.
-
-Clark {\em et al.}~\cite{ga-ase11} introduced an approach for
-database-aware fault localization in a dynamic Web application, which
-is based on Tarantula~\cite{tarantula05} to assign each statement a
-suspiciousness score computed based on the percentage of
-passing/failing test cases executing that statement. However, it has
-key restrictions on its effectiveness. First, it requires users~to provide
-the passing/failing test cases that must produce {\em different unique
-queries} at run-time, i.e. produce different unique SQL structures in
-which one of the structures is~exercised by all failing test
-cases. It uses Tarantula to locate the faulty SQL statement
-corresponding to that structure.
-%sets of data columns/attributes.
-%(i.e. SQL commands involving in unique sets of data table
-%columns/attributes).
-%The provided failing test cases must also correspond to one unique SQL
-%query structure.
+programs)~\cite{dor-issta08,litvak10,saha11}, very few approaches have
+been proposed for {\em database-aware} fault
+localization~\cite{ga-ase11,icsm13}, which needs to consider the data
+communication between the host program in PHP/ASP and the database via
+the queries. While Clark {\em et al.}~\cite{ga-ase11} require users to
+provide the passing/failing test cases that must produce {\em
+  different SQL queries} with unique structures, SQLook~\cite{icsm13}
+cannot locate the detailed faulty predicates within the SQL queries.
 These requirements are too strict since in reality, all
 passing/failing test cases often create SQL queries with the same
 structure and only literal values vary for each query.
-%with the fixed set of attributes and varied literal values.
-%Thus, their approach is not practical because it considers that all
-%test cases produce a unique SQL command.
-Second, it cannot locate detailed faults {\em within} the queries,
-except for faulty SQL attributes.
+
+
+%It was reported that there are common program failures in a dynamic
+%Web application that~are caused by the interaction and passing of data
+%between the application itself and the
+%database~\cite{ga-ase11,brooks-icst09}. Localizing faults is a crucial
+%task in software maintenance to improve software~quality.
+%Thus, many researchers developed {\em automated fault localization
+%  methods} for traditional, non-database
+%applications~\cite{abreu-ochiai-07, tarantula05,liblit-pldi05} and for
+%data-centric applications (i.e. single-language database
+%programs)~\cite{dor-issta08,litvak10,saha11}. However, little
+%attention has been paid to research in {\em database-aware} fault
+%localization for dynamic Web applications, i.e., taking into account
+%the interaction between the applications and databases via queries.
+
+%----
+%Clark {\em et al.}~\cite{ga-ase11} introduced an approach for
+%database-aware fault localization in a dynamic Web application, which
+%is based on Tarantula~\cite{tarantula05} to assign each statement a
+%suspiciousness score computed based on the percentage of
+%passing/failing test cases executing that statement. However, it has
+%key restrictions on its effectiveness. First, it requires users~to
+%provide the passing/failing test cases that must produce {\em
+%  different unique queries} at run-time, i.e. produce different unique
+%SQL structures in which one of the structures is~exercised by all
+%failing test cases. It uses Tarantula to locate the faulty SQL
+%statement corresponding to that structure. These requirements are too
+%strict since in reality, all passing/failing test cases often create
+%SQL queries with the same structure and only literal values vary for
+%each query. Second, it cannot locate detailed faults {\em within} the
+%queries, except for faulty SQL attributes.
+%----
+
 %(i.e. erroneous data columns referred by SQL queries).
 
 %Clark {\em et al.}~\cite{ga-ase11} introduce the first approach for
@@ -81,36 +105,68 @@ except for faulty SQL attributes.
 %within} the SQL queries, except the faulty SQL attributes
 %(i.e. erroneous data columns referred to by SQL queries).
 
-To address those issues, we introduce {\tool}, a novel method for
-database-aware fault localization in dynamic PHP Web
-applications with SQL support. We focus on the output errors caused
-by incorrect SQL queries with erroneous \code{WHERE} clauses or by the
-manipulation of the queries' result in PHP. 
+%To address those issues, we introduce {\tool}, a novel method for
+%database-aware fault localization in dynamic PHP Web
+%applications with SQL support. We focus on the output errors caused
+%by incorrect SQL queries with erroneous \code{WHERE} clauses or by the
+%manipulation of the queries' result in PHP. 
 %%%When the predicates in \code{WHERE} clause are faulty, it is very
 %%%likely that the output is incorrect.
 
+In this paper, we introduce {\tool}, a novel approach to
+database-aware fault localization for dynamic PHP-based Web
+applications. {\tool} can locate faulty PHP statements that handle
+the SQL queries as well as the faulty SQL queries with erroneous
+condition clauses.
+%
 {\tool} works in two phases. First, it localizes the faulty SQL
-statements in PHP code. To achieve that, we use a {\em row-based test
-case technique} in which instead of considering the entire output of
-data records as a test case, we leverage the presence/absence of
-individual data rows and their expected values to create more test cases,
-called {\em row-based test cases}. Specifically, an input of the PHP
-program and a present/absent data row in the output forms a row-based
-test case. If such presence/absence is expected, the test case is a
-passing one, and vice versa. Importantly, instead of passing the
-control to the database engine to execute a SQL command as in~Clark
-{\em et al.} \cite{ga-ase11}, we {\em instrument into a PHP
-interpreter} the code~to execute the SQL query and to {\em monitor}
-the evaluation of the predicates of a \code{WHERE} clause to determine
-if they affect the output of individual data records. Then,
-based on whether the \code{WHERE} parts are exercised frequently
-by passing/failing test cases, we apply Tarantula
-metric~\cite{tarantula05} to give a suspiciousness score for each
-\code{WHERE} part. Since our row-based test cases are for individual
-data rows, to compute the scores for PHP statements, {\tool} performs
-{\em row-based slicing} across PHP statements and SQL parts to record
-the PHP statements that are exercised in the output of a 
-row.
+statements in PHP code. To achieve that, we make a test case from each
+individual row in a database table. We use the presence/absence of
+each row and its expected value to create a test case, instead of
+using the entire output of the records in a database as a test case.
+%use a {\em row-based test case technique} in which instead of
+%considering the entire output of data records as a test case, we
+%leverage the presence/absence of individual data rows and their
+%expected values to create more test cases, called {\em row-based test
+%  cases}. %Specifically,
+%an input of the PHP program and a present/absent data
+%row in the output forms a row-based test case. If such
+If the presence/absence of a row in the database is expected,
+that test case is considered as a passing one, and as a failing one
+otherwise.
+
+Importantly, we also use an instrumentation technique to monitor the
+evaluation of the predicates of each condition clause (i.e.,
+\code{WHERE} clause), rather than yielding the control of the query
+execution to the database engine.
+%
+%Importantly, instead of passing the control to the database engine to
+%execute a SQL command as in~Clark {\em et al.}  \cite{ga-ase11},
+We instrument into a PHP interpreter the code for query execution to
+monitor the evaluation of the predicates to decide whether each
+\code{WHERE} clause has impact on the output of individual rows in the
+database table. For each \code{WHERE} part, we assign a suspiciousness
+score using a spectrum formula accordingly to the numbers of the
+execution of that \code{WHERE} part in the passing and failing test
+cases as in a normal spectrum-based fault localization
+method~\cite{abreu-ochiai-07}. From that suspiciousness score, we
+perform {\em row-based slicing} from SQL \code{WHERE} parts to the
+statements in PHP code in the basis of individual rows in the database
+table, in order to record the PHP statements that are executed to
+produce the output of the rows.
+%{\em instrument into a PHP interpreter} the code~to execute the SQL
+%query and to {\em monitor} the evaluation of the predicates of a
+%\code{WHERE} clause to determine if they affect the output of
+%individual data records.
+%Then, based on whether the \code{WHERE} parts are exercised frequently
+%by passing/failing test cases, we apply Tarantula
+%metric~\cite{tarantula05} to give a suspiciousness score for each
+%\code{WHERE} part.
+%
+%Since our row-based test cases are for individual data rows, to
+%compute the scores for PHP statements, {\tool} performs {\em row-based
+%  slicing} across PHP statements and SQL parts to record the PHP
+%statements that are exercised in the output of a row.
 
 After deciding that a \code{WHERE} clause in an SQL query potentially
 has a fault, {\tool} continues to localize specific predicates likely
@@ -123,10 +179,19 @@ leads to a different result of the \query{WHERE} clause, which makes a
 \emph{failed} test case become successful, the predicate's original
 value is likely incorrect. The predicates whose switched values
 change the results of more failed test cases are given higher
-suspiciousness scores. Our empirical evaluation 
-shows that {\tool} achieves higher accuracy than Clark {\em et
-al.}~\cite{ga-ase11}.
-%and help developers in reducing debugging efforts. 
+suspiciousness scores.
+
+
+%
+Our empirical evaluation shows that {\tool} can achieve higher
+accuracy than the state-of-the-art approach. For single-fault
+scenarios, around 84\% of the seeded faults are correctly identified
+by {\tool} with a single recommendation. For multiple-fault scenarios,
+60\% of the cases have their faults detected in the top-2 list.  Our
+empirical evaluation shows that {\tool} achieves higher accuracy than
+Clark {\em et al.}~\cite{ga-ase11}.
+
+
 Our key contributions include:
 
 1. A novel database-aware fault localization method for dynamic
