@@ -182,17 +182,18 @@ change the results of more failed test cases are given higher
 suspiciousness scores.
 
 
-%
-Our empirical evaluation shows that {\tool} can achieve higher
-accuracy than the state-of-the-art approach. For single-fault
-scenarios, around 84\% of the seeded faults are correctly identified
-by {\tool} with a single recommendation. For multiple-fault scenarios,
-60\% of the cases have their faults detected in the top-2 list.  Our
-empirical evaluation shows that {\tool} achieves higher accuracy than
-Clark {\em et al.}~\cite{ga-ase11}.
+We conduct several experiments to evaluate {\tool}. We use the dataset
+that has been used in the prior work in fault localization for Web
+applications with the total of 225K LOCs and 2,518 SQL queries.  Our
+empirical evaluation shows that {\tool} can achieve higher accuracy
+than the state-of-the-art approach in Clark {\em et
+  al.}~\cite{ga-ase11}. For single-fault scenarios, around 84\% of the
+seeded faults are correctly identified by {\tool} with a single
+recommendation. For multiple-fault scenarios, 60\% of the cases have
+their faults detected in the top-2 list.
 
 
-Our key contributions include:
+In brief, the key contributions of this paper include:
 
 1. A novel database-aware fault localization method for dynamic
 Web applications to locate the faults in PHP statements and the
@@ -200,14 +201,12 @@ predicates of the \code{WHERE} expressions of SQL queries.
 %The prototype tool provides a ranked list of suspicious PHP
 %entities and the SQL predicates,
 
-%2. A prototype database-aware fault-localization tool, {\tool} that
-%provides a ranked list of suspicious PHP entities and the predicates
-%in SQL queries,
+2. A prototype database-aware fault-localization tool, {\tool} that
+provides a ranked list of suspicious PHP entities and the predicates
+in SQL queries,
 
-2. An empirical evaluation to show {\tool}'s accuracy.
-
-% and usefulness of {\tool} in helping developers in fault
-%localization.
+3. An empirical evaluation to show {\tool}'s accuracy, and usefulness
+of {\tool} in helping developers in fault localization.
 
 %Section~2 presents a motivating example. Details on {\tool} are
 %described in Sections 3 and 4. Section 5 is for our
