@@ -4,7 +4,8 @@
 
 \begin{table}
     \centering
-    \footnotesize
+    %    \footnotesize
+    \small
     \caption{The \textsf{Users} database table}\label{tab:users-table}
 \begin{tabular}{lllll}
   \addlinespace
@@ -20,38 +21,73 @@
 \end{tabular}
 \end{table}
 
-Web applications are often developed with dynamic data. The data is
-usually stored in databases, such as in the table shown in
-Table~\ref{tab:users-table}. The \code{Users} database table
-contains four rows (\emph{data records}). The five columns of the
-table indicate five \emph{attributes} associated with each record. For
-example, the first record has the information on a user with
-the attributes \code{ID=1, Name=Alice, Age=20, Gender=Female}, and
-\code{Country=USA}. This data can then be accessed or updated from the
-Web application through SQL queries. For instance, the SQL query
-\code{``SELECT Name FROM Users WHERE Age = 20''} returns a
-\emph{result set} containing the names of all users whose age is
-20.
+Let us start with an example to motivate our
+approach. Table~\ref{tab:users-table} shows an example of a database
+table with four records on four persons. The table \code{Users} has
+four rows corresponding to four data records. The columns of the table
+represent the {\em attributes} of each record. In this example, the
+data record shows the \code{ID}, \code{Name}, \code{Age},
+\code{Gender}, and \code{Country} for each person. For example, the
+first row shows the information for a person with the name of
+\code{Alice}. In a dynamic Web application, the data can be retrieved
+and updated from PHP code with the embedded SQL queries as we will
+explain next. For example, one can construct the following SQL query
+in a PHP program as in \code{``SELECT Name FROM Users WHERE Age =
+  20''}. The result is a {\em result set} containing the names of all
+users whose age is 20.
 
-As a Web application interacts with a database through SQL queries,
-database-specific failures can occur. Fig.~\ref{fig:example-phpcode}
-shows an example of a PHP function that produces incorrect output
-values due to an error in its SQL query. The purpose of the function
-is to display the names of the users from the \code{Users} table
-(Table~\ref{tab:users-table}) that satisfy a searching criteria (by
-\code{age, gender}, or \code{country}). First, the connection to the
-database is established (lines 1-2,
-Fig.~\ref{fig:example-phpcode}). The \code{\$sql} variable (line 3)
-contains the SQL query that retrieves the users' names for a given
-search input. This query is then sent to the database server to be
-executed via the PHP function \code{mysql\_query} (line 4), and the
-returned result set is stored in the variable
-\code{\$result}. Finally, the code on lines 5-7 is used to loop
-through the records in the result set and display the corresponding
-names of the users found via the search. Note that this function
-contains an SQL fault: on line 3, the operator in the last predicate
-\code{Country $<>$ `\$country'} of the SQL query should be \code{`='}
-instead of \code{`$<>$'}.
+%Web applications are often developed with dynamic data. The data is
+%usually stored in databases, such as in the table shown in
+%Table~\ref{tab:users-table}. The \code{Users} database table
+%contains four rows (\emph{data records}). The five columns of the
+%table indicate five \emph{attributes} associated with each record. For
+%example, the first record has the information on a user with
+%the attributes \code{ID=1, Name=Alice, Age=20, Gender=Female}, and
+%\code{Country=USA}. This data can then be accessed or updated from the
+%Web application through SQL queries. For instance, the SQL query
+%\code{``SELECT Name FROM Users WHERE Age = 20''} returns a
+%\emph{result set} containing the names of all users whose age is
+%20.
+
+As a PHP-based Web application communicates with a database, a fault
+might occur at the code responsible for such
+interaction. Figure~\ref{fig:example-phpcode} shows the PHP code that
+contains a fault in its SQL query at line 3, resulting the incorrect
+output. The goal of the function in Figure~\ref{fig:example-phpcode}
+is to display the records of the persons whose ages are greater than
+the specified age, and the genders and countries match with the
+specified ones. However, the developer made a mistake at the PHP code
+to construct the SQL query: the operator in the last predicate
+\code{Country $<>$ `\$country'} should be \code{`='}, instead of
+\code{`$<>$'}. The string representing this SQL query is constructed
+from the string literals at line 3 and the arguments \code{age},
+\code{gender}, and \code{country}, after the code responsible for the
+preparation of the connection to the database at lines 1--2. The query
+is sent to the database server to be executed at line 4 via the PHP
+function \code{mysql\_query}. The result set is stored in the variable
+\code{result}. Because the query is incorrect, the output result is
+not correct as a consequence (lines 5--7 are used to loop through the
+result set and display the users' names matched from the search).
+
+%As a Web application interacts with a database through SQL queries,
+%database-specific failures can occur. Fig.~\ref{fig:example-phpcode}
+%shows an example of a PHP function that produces incorrect output
+%values due to an error in its SQL query. The purpose of the function
+%is to display the names of the users from the \code{Users} table
+%(Table~\ref{tab:users-table}) that satisfy a searching criteria (by
+%\code{age, gender}, or \code{country}). First, the connection to the
+%database is established (lines 1-2,
+%Fig.~\ref{fig:example-phpcode}). The \code{\$sql} variable (line 3)
+%contains the SQL query that retrieves the users' names for a given
+%search input. This query is then sent to the database server to be
+%executed via the PHP function \code{mysql\_query} (line 4), and the
+%returned result set is stored in the variable
+%%\code{\$result}. Finally, the code on lines 5-7 is used to loop
+%through the records in the result set and display the corresponding
+%names of the users found via the search. Note that this function
+%contains an SQL fault: on line 3, the operator in the last predicate
+%\code{Country $<>$ `\$country'} of the SQL query should be \code{`='}
+%instead of \code{`$<>$'}.
 
 \begin{figure}[t]
     {\footnotesize\sffamily
