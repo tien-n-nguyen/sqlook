@@ -12,29 +12,39 @@
  \caption{Instrumented PHP interpreter to monitor the execution of SQL queries~\cite{icsm13}}\label{fig:SQL-Transformed}
 \end{figure}
 
-In a PHP Web application, program faults may be found in regular PHP
-statements or those that interact with the database, called
-\emph{database-interaction points} (e.g. line 4 of
-Figure~\ref{fig:example-phpcode}). The goal of this step is to
-localize these faults, specifically to decide if a
-database-interaction point contains a fault(s) at its \query{WHERE}
-clause or not. To do that, {\tool} uses
-%the statistical suspiciousness metric
-Tarantula~\cite{tarantula05} to compute the suspiciousness scores for
-all entities in PHP and in SQL \code{WHERE} clauses. To avoid the
-issues as in Clark {\em et al.}~\cite{ga-ase11}'s approach, we have
-following key design strategies:
 
-(1) {\em Row-based test cases}. 
-%As explained in Section 2.2., 
-Instead of viewing the input and entire expected output from the
-database as one test case, we analyze individual data records in
-the actual and expected outputs to create row-based test cases. For
-example, in Figure~\ref{fig:example-output}, we have four row-based test
-cases: 1) the input \code{\$age=25, \$gender=`Female',
-\$country=`USA'} and the output of \code{Alice}'s record, 2) that
-input and the absence of \code{Bob}'s, 3) that input and the output of
-\code{Carol}'s, and 4) that input and the output of \code{Daniel}'s.
+In this section, we describe the steps in {\tool} to localize the
+faulty SQL queries. In addition to assign the suspiciousness scores
+for the PHP statements, we also aim to assign scores to SQL
+\code{WHERE} clauses of the SQL queries that are handled at the
+database-interaction points. Those points are the PHP statements
+responsible for the interaction with the database engines, e.g., line
+4 of Figure~\ref{fig:example-phpcode}.  To achieve that, we have the
+following key design ideas:
+
+%In a PHP Web application, program faults may be found in regular PHP
+%statements or those that interact with the database, called
+%\emph{database-interaction points} (e.g. line 4 of
+%Figure~\ref{fig:example-phpcode}). The goal of this step is to
+%localize these faults, specifically to decide if a
+%database-interaction point contains a fault(s) at its \query{WHERE}
+%clause or not. To do that, {\tool} uses Tarantula~\cite{tarantula05}
+%to compute the suspiciousness scores for all entities in PHP and in
+%SQL \code{WHERE} clauses. To avoid the issues as in Clark {\em et
+%  al.}~\cite{ga-ase11}'s approach, we have following key design
+%strategies:
+
+
+
+(1) {\em Row-based test cases}. Instead of viewing the input and
+entire expected output from the database as one test case, we analyze
+individual data records in the actual and expected outputs to create
+row-based test cases. For example, in Figure~\ref{fig:example-output},
+we have four row-based test cases: 1) the input \code{\$age=25,
+  \$gender=`Female', \$country=`USA'} and the output of \code{Alice}'s
+record, 2) that input and the absence of \code{Bob}'s, 3) that input
+and the output of \code{Carol}'s, and 4) that input and the output of
+\code{Daniel}'s.
 
 (2) {\em Monitoring the execution of PHP and SQL entities via
 instrumentation.} The suspiciousness scores are given to PHP
