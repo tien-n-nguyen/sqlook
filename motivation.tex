@@ -24,19 +24,18 @@ approach.
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:users-table} shows an example of a database
-table with four records on four persons. The table \code{Users} has
-four rows corresponding to four data records. The columns of the table
-represent the {\em attributes} of each record. In this example, the
-data record shows the \code{ID}, \code{Name}, \code{Age},
-\code{Gender}, and \code{Country} for each person. For example, the
-first row shows the information for a person with the name of
-\code{Alice}. In a dynamic Web application, the data can be retrieved
-and updated from PHP code with the embedded SQL queries as we will
-explain next. For example, one can construct the following SQL query
-in a PHP program as in \code{``SELECT Name FROM Users WHERE Age =
-  20''}. The result is a {\em result set} containing the names of all
-users whose age is 20.
+Table~\ref{tab:users-table} shows an example of a database table with
+four records. The table \code{Users} has four rows corresponding to
+four data records. The columns of the table represent the {\em
+  attributes} of each record. In this example, the data record shows
+the \code{ID}, \code{Name}, \code{Age}, \code{Gender}, and
+\code{Country} for each person. For example, the first row shows the
+information for a person with the name of \code{Alice}. In a dynamic
+Web application, the data can be retrieved and updated from PHP code
+with the embedded SQL queries as we will explain next. For example,
+one can construct the following SQL query in a PHP program as in
+\code{``SELECT Name FROM Users WHERE Age = 20''}. The result is a {\em
+  result set} containing the names of all users whose ages are~20.
 
 %Web applications are often developed with dynamic data. The data is
 %usually stored in databases, such as in the table shown in
