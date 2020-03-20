@@ -6,7 +6,7 @@
     \centering
     %    \footnotesize
     \small
-    \caption{The \textsf{Users} database table}\label{tab:users-table}
+    \caption{The \textsf{Users} database table~\cite{icsm13}}\label{tab:users-table}
 \begin{tabular}{lllll}
   \addlinespace
   \toprule
@@ -90,7 +90,7 @@ result set and display the users' names matched from the search).
 %instead of \code{`$<>$'}.
 
 \begin{figure}[t]
-    {\footnotesize\sffamily
+    {\small\sffamily
     %\setlength{\tabcolsep}{6pt}
     \renewcommand{\arraystretch}{1.3}
     {\normalfont\normalsize A PHP function with an SQL query error on line 3:}\\
@@ -116,12 +116,13 @@ result set and display the users' names matched from the search).
     \hspace{20pt}AND Gender = `\$gender' OR \textbf{Country = `\$country'} ''; \\
     \bottomrule
 \end{tabular}}
-    \caption{An PHP function with an SQL query error}\label{fig:example-phpcode}
+    \caption{An PHP function with an SQL query error~\cite{icsm13}}\label{fig:example-phpcode}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \footnotesize
+    %    \footnotesize
+    \small
 \begin{minipage}[t]{0.985\columnwidth}
 Search Input: \textsf{\$age=25, \$gender=`Female', \$country=`USA'}
 \end{minipage}
@@ -163,30 +164,36 @@ Daniel
 \end{minipage}
 %
 %\vspace{-7pt}
-    \caption{Output of the PHP function in Fig.~\ref{fig:example-phpcode}}\label{fig:example-output}
+    \caption{Output of the PHP function in Figure~\ref{fig:example-phpcode}~\cite{icsm13}}\label{fig:example-output}
 \end{figure}
 
 %for a given test case
 
+Due to that error, the output result is
+unexpected. Figure~\ref{fig:example-output} shows actual and expected
+SQL queries and their corresponding output results given the search
+input \code{\$age=25, \$gender=`Female', \$country=`USA'}. Because
+the SQL query was incorrectly constructed at the last predicate, the
+actual output is not the expected one. The records of Alice and Daniel
+are supposed to be retrieved, however, were left out. The record of
+Bob was returned and included in the output, while it must not.
 
-
-Due to that error in the SQL query, the function does~not display the
-expected results. Fig.~\ref{fig:example-output} shows the actual and
-expected output values given the search input \code{\$age=25,
-\$gender=`Female', \$country=`USA'}. In the correct SQL query, the
-three-predicate condition determining the values in the returned
-result set is: \code{Age $>=$ 25} \code{AND} \code{Gender = `Female'}
-\code{OR} \code{Country = `USA'}. Since the actual query has a fault
-in the last predicate, there is a mismatch between its actual and
-expected outputs. As seen, Alice's and Daniel's names are expected to
-be found in the result, but are not displayed. Meanwhile, Bob's name
-is included in the actual output although it must not.
-
-%Alice and Daniel should be included in the returned result whereas Bob should not.
+%Due to that error in the SQL query, the function does~not display the
+%expected results. Fig.~\ref{fig:example-output} shows the actual and
+%expected output values given the search input \code{\$age=25,
+%\$gender=`Female', \$country=`USA'}. In the correct SQL query, the
+%three-predicate condition determining the values in the returned
+%result set is: \code{Age $>=$ 25} \code{AND} \code{Gender = `Female'}
+%\code{OR} \code{Country = `USA'}. Since the actual query has a fault
+%in the last predicate, there is a mismatch between its actual and
+%expected outputs. As seen, Alice's and Daniel's names are expected to
+%be found in the result, but are not displayed. Meanwhile, Bob's name
+%is included in the actual output although it must not.
 
 \begin{figure}[t]
     \centering
-    \scriptsize
+    %    \scriptsize
+    \small
     \setlength{\tabcolsep}{2pt}
     \renewcommand{\arraystretch}{1.1}
 {\sffamily
@@ -205,55 +212,96 @@ is included in the actual output although it must not.
     \bottomrule
 \end{tabular}
 }
-    \caption{Suspiciousness scores of the PHP statements and SQL queries in Fig.~\ref{fig:example-phpcode} computed using the technique by Clark et al. and Tarantula metric}\label{fig:suspiciousness}
+    \caption{Suspiciousness scores of the PHP statements and SQL queries in Figure~\ref{fig:example-phpcode} computed using the technique by Clark et al. and Tarantula metric~\cite{icsm13}}\label{fig:suspiciousness}
 \end{figure}
 
 %Given the mismatch between the actual output and the expected one, 
-Given such mismatch, it is not obvious which part of the program
-accounts for the error. In this example, the fault lies at a predicate
-of an SQL query, whereas the Web application is written in
-PHP. Moreover, the actual execution of the SQL query occurs at the
-database server, which is separate from the main PHP program where the
-SQL query is created. Thus, the process of localizing this type of
-fault needs to be \emph{database-aware}, namely taking into account
-the interaction between the Web application and the database via
-queries.
+
+%Tien
+
+It is challenging to localize such fault causing that errorenous
+output. The error was made in the construction of the string
+representing the SQL query within the PHP code. In other words, the
+error occurs within the embedded string in the PHP code.  Even more
+challenging is the fact that the execution of the query is done at the
+database server, which is separate from where the PHP program is
+executed to create the SQL query. In brief, to localize this kind of
+faults/bugs, a tool needs to be {\em database-aware}, i.e., need to
+consider the communications between PHP-based Web application and the
+database via the queries.
+
+
+%Given such mismatch, it is not obvious which part of the program
+%accounts for the error. In this example, the fault lies at a predicate
+%of an SQL query, whereas the Web application is written in
+%PHP. Moreover, the actual execution of the SQL query occurs at the
+%database server, which is separate from the main PHP program where the
+%SQL query is created. Thus, the process of localizing this type of
+%fault needs to be \emph{database-aware}, namely taking into account
+%the interaction between the Web application and the database via
+%queries.
 
 Although there exist many fault localization techniques for
 single-language programs (e.g. \cite{abreu-ochiai-07},
-\cite{tarantula05}),
-%\cite{liblit-pldi05}) 
-and data-centric programs (e.g. \cite{dor-issta08}, \cite{litvak10},
-\cite{saha11}), little attention has been given to database-specific
-faults in a multilingual Web application.~A state-of-the-art approach
-in database-aware fault localization for Web applications is
-Clark {\em et al.}~\cite{ga-ase11}. Their tool monitors SQL queries
-generated at runtime and compute the \emph{suspiciousness} scores for
-those SQL queries and their attributes, as well as the
-statements in the main program. Similar to other statistical fault
-localization methods (e.g. Tarantula~\cite{tarantula05} and
-Ochiai~\cite{abreu-ochiai-07}), the idea in computing
-suspiciousness scores is to contrast the runtime behaviors of correct
-and incorrect executions of the program. Specifically, if a program
-entity (program statement or predicate) is exercised by more failing
-test cases than passing ones, it is more likely to be responsible for
-the failure, and thus assigned with a higher suspiciousness~score.
+\cite{tarantula05}), \cite{liblit-pldi05}), and data-centric programs
+(e.g. \cite{dor-issta08}, \cite{litvak10}, \cite{saha11}), little
+attention has been given to database-specific faults in a multilingual
+Web application.
+%
+A state-of-the-art approach in database-aware fault localization for
+Web applications is Clark {\em et al.}~\cite{ga-ase11}. Their tool
+monitors the execution of the PHP statements in the main program and
+that of the generated SQL queries. It then assigns the
+\emph{suspiciousness} scores to the PHP statements as well as the SQL
+queries using the idea from the spectrum-based fault localization
+approaches (Tarantula~\cite{tarantula05} and
+Ochiai~\cite{abreu-ochiai-07}).
+%monitors SQL queries generated at runtime and compute the
+%\emph{suspiciousness} scores for those SQL queries and their
+%attributes, as well as the statements in the main program.
+%
+The rationale in computing suspiciousness scores is to contrast the
+runtime behaviors of correct and incorrect executions of the program.
+If a program entity (program statement or predicate) is exercised by
+more failing test cases than passing ones, it is more likely to be
+responsible for the failure, and thus assigned with a higher
+suspiciousness~score.
 
-Compared with the previous fault localization approaches, Clark {\em
-et al.}'s method~\cite{ga-ase11} is database-aware in that it
-considers SQL queries or SQL attributes as program entities and also
-computes their 
-%corresponding 
-suspiciousness scores. For example, Fig.~\ref{fig:suspiciousness}
-illustrates the computation of suspiciousness scores for the program
-entities in Fig.~\ref{fig:example-phpcode} including SQL
-queries. Line 4$\ast$ shows the SQL query executed by the PHP
-statement \code{mysql\_query} on line 4 at runtime, with the question
-marks indicating literal values (numbers/strings). If the PHP
-\code{mysql\_query} statement executes multiple \emph{unique} SQL
-queries (each with a different set of attributes) in different
-executions, the suspiciousness scores of the individual queries will
-be computed.
+Let us explain how Clark {\em et al.}'s method~\cite{ga-ase11} works
+in the database-aware fashion. It assigns the suspiciousness scores to
+the program entities including PHP statements, SQL queries, and SQL
+attributes.  Fig.~\ref{fig:suspiciousness} illustrates the computation
+of suspiciousness scores for our running example. Line 4 shows
+the PHP statement with \code{mysql\_query} while line 4$\ast$ displays
+the SQL query produced by the code at line 4 at run-time. We use
+the question marks to denote the literal numbers or strings.
+%
+%Line 4$\ast$ shows the SQL query executed by the PHP
+%statement \code{mysql\_query} on line 4 at runtime, with the question
+%marks indicating literal values (numbers/strings).
+%
+If multiple {\em unique SQL queries}, each with a different set of
+attributes, are produced by the PHP code at line 4, their tool will assign
+the suspiciousness scores to individual SQL queries.
+%If the PHP \code{mysql\_query} statement executes multiple
+%\emph{unique} SQL queries (each with a different set of attributes) in
+%different executions, the suspiciousness scores of the individual
+%queries will be computed.
+
+%Compared with the previous fault localization approaches, Clark {\em
+%et al.}'s method~\cite{ga-ase11} is database-aware in that it
+%considers SQL queries or SQL attributes as program entities and also
+%computes their 
+%suspiciousness scores. For example, Fig.~\ref{fig:suspiciousness}
+%illustrates the computation of suspiciousness scores for the program
+%entities in Fig.~\ref{fig:example-phpcode} including SQL
+%queries. Line 4$\ast$ shows the SQL query executed by the PHP
+%statement \code{mysql\_query} on line 4 at runtime, with the question
+%marks indicating literal values (numbers/strings). If the PHP
+%\code{mysql\_query} statement executes multiple \emph{unique} SQL
+%queries (each with a different set of attributes) in different
+%executions, the suspiciousness scores of the individual queries will
+%be computed.
 
 That computation is based on the idea that if some of unique
 SQL queries are executed by more failing test cases than passing ones,
