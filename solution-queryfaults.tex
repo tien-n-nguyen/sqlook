@@ -9,13 +9,13 @@
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{images/SQL-Transformed4.eps} %2
- \caption{Instrumented PHP interpreter to monitor the execution of SQL queries}\label{fig:SQL-Transformed}
+ \caption{Instrumented PHP interpreter to monitor the execution of SQL queries~\cite{icsm13}}\label{fig:SQL-Transformed}
 \end{figure}
 
 In a PHP Web application, program faults may be found in regular PHP
 statements or those that interact with the database, called
 \emph{database-interaction points} (e.g. line 4 of
-Fig.~\ref{fig:example-phpcode}). The goal of this step is to
+Figure~\ref{fig:example-phpcode}). The goal of this step is to
 localize these faults, specifically to decide if a
 database-interaction point contains a fault(s) at its \query{WHERE}
 clause or not. To do that, {\tool} uses
@@ -30,7 +30,7 @@ following key design strategies:
 Instead of viewing the input and entire expected output from the
 database as one test case, we analyze individual data records in
 the actual and expected outputs to create row-based test cases. For
-example, in Fig.~\ref{fig:example-output}, we have 4 row-based test
+example, in Figure~\ref{fig:example-output}, we have four row-based test
 cases: 1) the input \code{\$age=25, \$gender=`Female',
 \$country=`USA'} and the output of \code{Alice}'s record, 2) that
 input and the absence of \code{Bob}'s, 3) that input and the output of
@@ -42,7 +42,7 @@ statements and SQL \code{WHERE} clause(s). Instead of passing the
 control to the database engine to execute an SQL command as in 
 %Clark {\em et al.}
 \cite{ga-ase11}, {\tool} instruments into an PHP interpreter the code
-to execute the SQL command (Fig.~\ref{fig:SQL-Transformed}) and to
+to execute the SQL command (Figure~\ref{fig:SQL-Transformed}) and to
 observe the evaluation of the \code{WHERE} clause with respect to
 every row-based test case.  Because the \code{WHERE} clause's value
 decides if the output of a row-based test case is present or not,
