@@ -1,5 +1,8 @@
 \section{Motivation}
 
+Let us start with an example to motivate our
+approach. 
+
 \subsection{Motivating Example}
 
 \begin{table}
@@ -21,8 +24,7 @@
 \end{tabular}
 \end{table}
 
-Let us start with an example to motivate our
-approach. Table~\ref{tab:users-table} shows an example of a database
+Table~\ref{tab:users-table} shows an example of a database
 table with four records on four persons. The table \code{Users} has
 four rows corresponding to four data records. The columns of the table
 represent the {\em attributes} of each record. In this example, the
@@ -303,33 +305,47 @@ the suspiciousness scores to individual SQL queries.
 %executions, the suspiciousness scores of the individual queries will
 %be computed.
 
-That computation is based on the idea that if some of unique
-SQL queries are executed by more failing test cases than passing ones,
-they will have higher scores. This strategy is useful when there are
-multiple unique SQL queries that expose different behaviors in passing
-and failing test cases. However, in practice, a PHP
-\code{mysql\_query} statement often executes only one SQL
-query, in which the set of attributes is fixed, and the concrete SQL
-queries in different executions have the same structure and vary only
-at the literal values. This phenomenon is also reported by the
-authors~\cite{ga-ase11}. As an illustration, the unique query
-in this example (line 4$\ast$ of Fig.~\ref{fig:suspiciousness}) is
-\code{``SELECT Name FROM Users WHERE Age $>$= ? AND Gender = ? OR
-Country $<>$ ?''}, with the set of attributes \code{\{Name, Age,
-Gender, Country\}}.
+The key idea of that method is that if some SQL queries with sets of
+attributes are exercised in the execution of the passing test cases
+and some other queries with different sets of attributes are executed
+in those of failing ones, we can distinguish them and assign more
+suspiciousness scores for the queries corresponding to the failing
+ones. However, the SQL queries (executed by the PHP statement
+\code{mysql\_query}) in different executions often have the same set
+of attributes with the same structure. They differ from one another in
+the literal values in the predicates. For example, the queries in the
+running example would have the same structure \code{``SELECT Name FROM
+  Users WHERE Age $>$= ? AND Gender = ? OR Country $<>$ ?''}, and the
+same set of attributes \code{\{Name, Age, Gender, Country\}}. The
+literals for ages, genders, and countries might vary for different
+queries. Because the queries all have the same structure with
+different literals, the numbers of passing and failing test cases
+going through each of the queries are the same. Thus, they will be
+given the same suspiciousness scores as the PHP statement
+\code{mysql\_query}.
 
-Since there is one unique SQL query executed by the PHP
-\code{mysql\_query} statement, the coverage of the SQL query in the
-passing and failing test cases is the same as the \code{mysql\_query}
-statement, and therefore its suspiciousness score does not provide
-further information about the location of the fault. 
-%Let us describe the score computation to illustrate this limitation. 
-In Fig.~\ref{fig:suspiciousness}, the bullets indicate the program
-entities that are exercised by a given test case. At the bottom row,
-the letters \code{P} and \code{F} specify a passing and failing test
-case, respectively. Column \code{Sus.} shows the suspiciousness score
-$S(e)$ for a program entity $e$ using the Tarantula
-(\cite{tarantula05}) metric:
+%That computation is based on the idea that if some of unique
+%SQL queries are executed by more failing test cases than passing ones,
+%they will have higher scores. This strategy is useful when there are
+%multiple unique SQL queries that expose different behaviors in passing
+%and failing test cases. However, in practice, a PHP
+%\code{mysql\_query} statement often executes only one SQL
+%query, in which the set of attributes is fixed, and the concrete SQL
+%queries in different executions have the same structure and vary only
+%at the literal values. This phenomenon is also reported by the
+%authors~\cite{ga-ase11}. As an illustration, the unique query
+%in this example (line 4$\ast$ of Fig.~\ref{fig:suspiciousness}) is
+%\code{``SELECT Name FROM Users WHERE Age $>$= ? AND Gender = ? OR
+%Country $<>$ ?''}, with the set of attributes \code{\{Name, Age,
+%Gender, Country\}}.
+
+Figure~\ref{fig:suspiciousness} shows the coverage information and the
+suspiciousness scores given by Clark {\em et al.}~\cite{ga-ase11}.
+The rows correspond to the statements and queries, and the columns are
+for the test cases. A dark circle shows the execution of a statement
+in a test case. The last row shows the status of passing and failing
+of the test cases. The suspiciousness scores for the rows are computed
+using the Tarantula (\cite{tarantula05}) metric:
 \begin{equation}
 \small
 \label{eq:tarantula}
@@ -340,19 +356,48 @@ $e$, $Failed(e)$ is the number of failing test cases that execute $e$,
 and $TotalPassed$ and $TotalFailed$ are the respective total numbers
 of passing and failing test cases.
 
-Although there is a fault in the SQL query, its suspiciousness score
-(0.5) is the same as the PHP \code{mysql\_query} statement that
-executes it. In fact, all the program entities always have the same
-score even when a different suspiciousness metric is used, since the
-same set of program entities is executed in every passing or failing
-test case (regardless of the test suite). From those suspiciousness
-scores,
-% computation results, 
-no further information about the fault is gained. This limitation motivated us
-to develop a new
-%database-aware fault localization technique 
-%method that provides better diagnosis for database-specific failures.
-method to better localize database-specific faults.
+%Since there is one unique SQL query executed by the PHP
+%\code{mysql\_query} statement, the coverage of the SQL query in the
+%passing and failing test cases is the same as the \code{mysql\_query}
+%statement, and therefore its suspiciousness score does not provide
+%further information about the location of the fault. In
+%Fig.~\ref{fig:suspiciousness}, the bullets indicate the program
+%entities that are exercised by a given test case. At the bottom row,
+%the letters \code{P} and \code{F} specify a passing and failing test
+%case, respectively. Column \code{Sus.} shows the suspiciousness score
+%$S(e)$ for a program entity $e$ using the Tarantula
+%(\cite{tarantula05}) metric:
+%\begin{equation}
+%\small
+%\label{eq:tarantula}
+%    S(e) = \dfrac{\tfrac{Failed(e)}{TotalFailed}}{\tfrac{Passed(e)}{TotalPassed} + \tfrac{Failed(e)}{TotalFailed}}
+%\end{equation}
+%where $Passed(e)$ is the number of passing test cases that execute
+%$e$, $Failed(e)$ is the number of failing test cases that execute $e$,
+%and $TotalPassed$ and $TotalFailed$ are the respective total numbers
+%of passing and failing test cases.
+
+As seen in Figure~\ref{fig:suspiciousness}, because the numbers of
+passing/failing test cases going through the PHP statements and SQL
+queries are the same for the statements and queries, they are all
+given the same score (0.5). In fact, for any spectrum-based fault
+localization methods would give the same suspiciousness score for
+those lines in this example because same set of program entities is
+executed in every passing or failing test case, regardless of the test
+suite. Therefore, the faulty queries are not idenfied. In other words,
+to localize this kind of faults, we need to develop a {\em
+  database-aware} fault localization method that considers the
+interaction between the PHP code and the database via the queries.
+
+%Although there is a fault in the SQL query, its suspiciousness score
+%(0.5) is the same as the PHP \code{mysql\_query} statement that
+%executes it. In fact, all the program entities always have the same
+%score even when a different suspiciousness metric is used, since the
+%same set of program entities is executed in every passing or failing
+%test case (regardless of the test suite). From those suspiciousness
+%scores, no further information about the fault is gained. This
+%limitation motivated us to develop a new method to better localize
+%database-specific faults.
 
 \subsection{Approach Overview}
 
