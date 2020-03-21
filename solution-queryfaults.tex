@@ -12,6 +12,7 @@
  \caption{Instrumented PHP interpreter to monitor the execution of SQL queries~\cite{icsm13}}\label{fig:SQL-Transformed}
 \end{figure}
 
+\subsection{Key Ideas}
 
 In this section, we describe the steps in {\tool} to localize the
 faulty SQL queries. In addition to assign the suspiciousness scores
@@ -93,6 +94,8 @@ row). To do that, during the monitoring in step (2), it computes the
 forward slice corresponding to each data row across the PHP statements
 and the two parts (\code{True}/\code{False}) of the \code{WHERE}
 clause.
+Let us explain each step in details in the following sections.
+
 %To do that, {\tool} uses the statistical suspiciousness metric
 %Tarantula~\cite{tarantula05} to compute the suspiciousness scores for
 %all entities in PHP and in SQL \code{WHERE} clause(s). To avoid the
@@ -121,6 +124,8 @@ clause.
 %conditions, \tool{} can increase the suspiciousness scores of faulty
 %conditions in SQL queries even when there exists only one unique SQL
 %query per database-interaction point.
+
+
 
 \input{solution-queryfaults-1}
 

@@ -1,0 +1,35 @@
+\begin{table}[t]
+    \centering 
+    %\scriptsize %\setlength{\tabcolsep}{3pt}
+    \small
+    \caption{Evaluation Rules for SQL expressions}\label{tab:transformation-rules}
+\begin{tabular}{@{}cll@{}}
+    \toprule
+    \textbf{No.} & \textbf{SQL Expression E} & \textbf{Eval. Result on E for Row R} \\
+    \midrule
+    1.  & E ::= E1 AND E2     &   E(R) $\leftarrow$ E1(R) \&\& E2(R) \\
+    \midrule
+    2.  & E ::= E1 OR E2      &   E(R) $\leftarrow$ E1(R) $||$ E2(R) \\
+    \midrule
+    3.  & E ::= E1 BETWEEN    &   E(R) $\leftarrow$ E2(R) $<=$ E1(R)  \\
+        & \hspace{30pt} E2 AND E3       & \hspace{30pt} \&\& E1(R) $<=$ E3(R) \\
+    \midrule
+    4.  & E ::= E' LIKE               &   $Pattern$.replace(\{`\%', `.*'\}, \{`\_', `.'\}) \\
+        & \hspace{30pt} $Pattern$     &   E(R) $\leftarrow$ match($Pattern$, E'(R)) \\
+    \midrule
+    5.  & E ::= $Table$ AS $Alias$   & $Alias$.RealName $\leftarrow$ $Table$ \\
+    \midrule
+    6.  & E ::= $Table$.$Column$      &   if $Table$ is alias then \\
+        &                               &   \hspace{15pt}$Table$ $\leftarrow$ $Table$.RealName \\
+        &                              & E(R) $\leftarrow$ R.getCol($Table$.$Column$) \\
+    \midrule
+    7.  & E ::= E' IN (\{$E_i$\}),    &   E(R) $\leftarrow$ \{$E_i(R)$\}.contains(E'(R)) \\
+        & \hspace{30pt} $i = 1 \ldots n$ \\
+    \midrule
+    8.  & E ::= EXISTS E'             &   E(R) $\leftarrow$ E'(R) != null \\
+    \midrule
+    9. & E ::= $SubSelect$          &   Send $SubSelect$ to DBMS \\
+       &                            &   Store returned result in E(R) \\
+    \bottomrule
+\end{tabular}
+\end{table}

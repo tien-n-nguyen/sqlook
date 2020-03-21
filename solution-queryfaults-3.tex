@@ -2,11 +2,10 @@
 
 \begin{figure}[t]
     \centering
-    \footnotesize
     \setlength{\tabcolsep}{1pt}
     \renewcommand{\arraystretch}{1.1}
 {\sffamily
- \scriptsize
+ \footnotesize
 \begin{tabular}{ll@{}ccccl@{}}
     \toprule
                    & & \multicolumn{4}{c}{Row-based test case} & Sus.\\
@@ -60,9 +59,9 @@
 Based on the monitoring results, \tool{} computes the suspiciousness
 scores for all program entities, including the \query{WHERE}
 conditions of SQL queries and other statements in the PHP
-program. Fig.~\ref{fig:suspiciousness-improved} illustrates the
+program. Figure~\ref{fig:suspiciousness-improved} illustrates the
 score computation for the example in
-Fig.~\ref{fig:example-phpcode}. A test case is marked as
+Figure~\ref{fig:example-phpcode}. A test case is marked as
 \code{Passed(P)} if the presence (or absence) of the
 corresponding record in the actual output is as expected; otherwise,
 it is marked as \code{Failed(F)}. For example, \code{Alice} does not
@@ -80,7 +79,7 @@ The column \code{Sus.} shows Tarantula suspiciousness scores.
 
 % (as explained in the motivating example).
 
-As seen in Fig.~\ref{fig:suspiciousness-improved}, the \code{False}
+As seen in Figure~\ref{fig:suspiciousness-improved}, the \code{False}
 part of the \query{WHERE} expression on line 4b has a high
 suspiciousness score (1.0), indicating that the program state when the
 \query{WHERE} of the SQL query is evaluated to \code{False} is likely
@@ -93,7 +92,7 @@ the predicates in the \query{WHERE} clause of the SQL query are most
 likely to contain an error. In this example, the fault is located at
 the last predicate of the \query{WHERE} condition (the operator in
 \code{Country $<>$ `\$country'} should be
-\code{`='} instead of \code{`$<>$'}). 
+\code{`='}). 
 The suspiciousness scores computed by \tool{} are, thus, useful in
 localizing faulty SQL queries.  
 

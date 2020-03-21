@@ -2,7 +2,7 @@
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.95\columnwidth]{images/Execution-Trace-1.pdf}\\
+  \includegraphics[width=\columnwidth]{images/Execution-Trace-1.pdf}\\
   \caption{Execution trace of row-based test cases}\label{fig:Execution-Trace}
 \end{figure}
 
@@ -18,8 +18,8 @@ computes program slices corresponding to each data row.
 %to each test case. 
 Figures~\ref{fig:Execution-Trace} and ~\ref{fig:Rowbased-Slicing}
 illustrate the computation of the slices for the example in
-Fig.~\ref{fig:example-phpcode} (with lines 5' and 7 added for
-illustrative purposes). Fig.~\ref{fig:Execution-Trace} shows the
+Figure~\ref{fig:example-phpcode} (with lines 5' and 7 added for
+illustrative purposes). Figure~\ref{fig:Execution-Trace} shows the
 trace in the execution of our instrumented interpreter. The
 nodes denote the PHP and SQL entities, and the arrows show the order
 in the execution trace. Besides PHP statements, {\tool} needs to
@@ -29,7 +29,7 @@ consider two parts of a \code{WHERE} clause (see lines 4a and 4b).
 %query (lines 4a and 4b).
 We use \code{1-Alice}, \code{2-Bob}, \code{3-Carol}, and
 \code{4-Daniel} to denote the data records in the result set \code{T}
-after step 2 in Fig.~\ref{fig:Instrumented-Code}, i.e., after
+after step 2 in Figure~\ref{fig:Instrumented-Code}, i.e., after
 executing the modified SQL query.
 
 As a PHP entity or SQL part is executed, \tool{} recognizes the
@@ -38,7 +38,7 @@ the slice of that row-based test case with its order in the execution
 trace. For example, since the \query{WHERE} expression evaluates to
 \code{True} for \code{Bob} and \code{Carol}, line 4a is included in
 the slices of the test cases corresponding to those data rows
-(see Fig.~\ref{fig:Rowbased-Slicing}). Similarly, line 4b is included in
+(see Figure~\ref{fig:Rowbased-Slicing}). Similarly, line 4b is included in
 the slices for \code{1-Alice} and \code{4-Daniel}, corresponding to
 \code{WhereExp = False}. Since only \code{2-Bob} and \code{3-Carol}
 are returned in the query's result, the PHP code on lines 5-6 performs
@@ -72,6 +72,6 @@ in all slices.
 %tbp
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.81\columnwidth]{images/Row-based-Slicing-1.pdf}\\ %0.84
+  \includegraphics[width=0.9\columnwidth]{images/Row-based-Slicing-1.pdf}\\ %0.84
   \caption{Row-based slicing across PHP and SQL}\label{fig:Rowbased-Slicing}
 \end{figure}
