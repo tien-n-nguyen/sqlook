@@ -3,16 +3,19 @@
 %Let us present our empirical evaluation on \tool{}'s
 %accuracy in localizing faults in Web applications. 
 
-We conducted our empirical evaluation on {\tool}'s accuracy in fault localization with three subject systems
-%from \code{sourceforge.net}
-%with the sizes ranging from 19 KLOC to 156KLOC
-(Table~\ref{tab:subject-systems}).
-%\code{AddressBook} is an application to manage contact information and
-%user groups. \code{SchoolMate} is a web system for managing students,
-%teachers, and classes in a school. The largest subject system,
-%\code{ZenCart}, is an e-commerce application.
+We conducted our empirical evaluation on {\tool}'s accuracy in fault
+localization with three subject systems from \code{sourceforge.net}
+with the sizes ranging from 19 KLOC to 156KLOC
+(Table~\ref{tab:subject-systems}).  \code{AddressBook} is an
+application to manage contact information and user
+groups. \code{SchoolMate} is a web system for managing students,
+teachers, and classes in a school. The largest subject system,
+\code{ZenCart}, is an e-commerce application. These subject systems
+have been used in prior work on fault detection for Web-based
+applications~\cite{icsm13,apollo10}.
 %All of these applications have interactions with a database through
 %SQL queries.
+
 %%%For each system, the number of SQL queries is shown in the column \code{Query}.
 
 %database-interaction points is shown in the last column \code{DB-I}.
@@ -37,10 +40,11 @@ a predicate of a given SQL query. In our second study, each mutant
 contains multiple faults.  In each study, we applied our two
 algorithms to localize the seeded faults: (1) \tool{}'s single-fault
 algorithm to detect SQL predicate faults assuming that there is a
-single fault in the query (Section IV.A), and (2) \tool{}'s multi-fault
-algorithm to detect SQL predicate faults with no prior assumption
-about the number of faults (Section IV.B). The output of each algorithm
-is a ranked list of the predicates in the SQL query, with the
+single fault in the query (Section~\ref{single-fault-section}), and
+(2) \tool{}'s multi-fault algorithm to detect SQL predicate faults
+with no prior assumption about the number of faults
+(Section~\ref{multi-fault-section}). The output of each algorithm is a
+ranked list of the predicates in the SQL query, with the
 highest-ranked predicate being the most likely one to contain the
 fault. To evaluate {\tool}'s accuracy, we counted the number of times
 that a faulty predicate appears in the top-ranked list of faulty

@@ -30,16 +30,16 @@ the predicates in the \query{WHERE} clauses, while for (2), we used
 the same mutation strategy as in the experiment in Clark {\em et
 al.}~\cite{ga-ase11}. Each mutant program has a single fault. Then, we
 created a failed test case that was resulted from the fault in either
-an SQL query or the PHP code. Table~\ref{tab:eval-database-aware}
-shows the result. Column
-\code{Mutants} shows the number of created mutants.
-Column \code{SQL faults/\% Rank} shows the percentage of statements in
-the execution trace that a~fixer need not examine by using
-\tool{}'s ranked list of suspicious statements. For example, for PHP
-faults, (s)he does not have to examine 86-98\% of the statements in
-the execution trace. Since the faulty SQL query is ranked at the top
-by \tool{}, column \code{SQL faults/\% Rank} shows 100\% for all three
-systems.
+an SQL query or the PHP code.
+
+Table~\ref{tab:eval-database-aware} shows the result. Column
+\code{Mutants} shows the number of created mutants.  Column \code{SQL
+  faults/\% Rank} shows the percentage of statements in the execution
+trace that a developer need not examine by using \tool{}'s ranked list of
+suspicious statements. For example, for PHP faults, (s)he does not
+have to examine 86-98\% of the statements in the execution
+trace. Since the faulty SQL query is ranked at the top by \tool{},
+column \code{SQL faults/\% Rank} shows 100\% for all three systems.
 
 \begin{table}[t]
     \centering
@@ -112,4 +112,5 @@ respectively. As seen, among 106 random query samples, 101 of them
 involve a unique set of attributes. Clark {\em et al.}~\cite{ga-ase11}
 could not give those SQL statements higher suspicious scores even with
 multiple test cases, thus, could not locate those 101 faults. In
-contrast, {\tool} was able to rank all of them at the highest.
+contrast, {\tool} was able to rank all of them at the top position
+of the resulting list.
