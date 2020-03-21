@@ -2,18 +2,22 @@
 
 %This paper presents {\tool}, 
 
-Lcalizing faults in a dynamic Web application is challenging
-due to its dynamic nature and the interactions between the
-application and the databases. In this paper, we present
-{\tool}, our database-aware fault localization method for Web
-programs, is able to detect output faults in PHP statements and
-in the predicates of \code{WHERE} clauses in SQL queries. In
-{\tool}, an PHP interpreter is instrumented to execute the query and
-monitor the evaluation of the predicates to decide if they
-affect the output of individual records. It performs row-based slicing
-across PHP and SQL to record the entities exercised in the output
-process of each row. Finally, {\tool}'s predicate switching identifies
-suspicious predicates. Our empirical evaluation shows that
-it can achieve high~accuracy.
+Lcalizing faults in a dynamic Web application is challenging due to
+its dynamic nature and the interactions between the application and
+the databases. In this paper, we present {\tool}, our database-aware
+fault localization method for Web programs, is able to detect output
+faults in PHP statements and in the predicates of \code{WHERE} clauses
+in SQL queries. In {\tool}, an PHP interpreter is instrumented to
+execute the query and monitor the evaluation of the predicates to
+decide if they affect the output of individual records. It performs
+row-based slicing across PHP and SQL to record the entities exercised
+in the output process of each row. Finally, {\tool}'s predicate
+switching identifies suspicious predicates. Our empirical evaluation
+shows that {\tool} can achieve higher accuracy than the
+state-of-the-art approach. For single-fault scenarios, around 84\% of
+the seeded faults are correctly identified by {\tool} with a single
+recommendation. For multiple-fault scenarios, 60\% of the cases have
+their faults detected in the top-2 list.
+
 
 % and help in reducing the debugging efforts.
