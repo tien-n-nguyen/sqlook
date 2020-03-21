@@ -36,32 +36,54 @@ following key design ideas:
 
 
 
-(1) {\em Row-based test cases}. Instead of viewing the input and
-entire expected output from the database as one test case, we analyze
-individual data records in the actual and expected outputs to create
-row-based test cases. For example, in Figure~\ref{fig:example-output},
-we have four row-based test cases: 1) the input \code{\$age=25,
-  \$gender=`Female', \$country=`USA'} and the output of \code{Alice}'s
-record, 2) that input and the absence of \code{Bob}'s, 3) that input
-and the output of \code{Carol}'s, and 4) that input and the output of
-\code{Daniel}'s.
+(1) {\em Row-based test cases}. Instead of using entire database table
+and its expected output as one single test case, we use each
+individual record and its presence/absence in the output as a test
+case. For example, in the running example, we can create four
+row-based test cases: 1) the input is the triple \code{\$age=25,
+  \$gender=`Female', \$country=`USA'}, and the output is the name
+\code{Alice}, 2) the same input and the output is the absence of the
+name \code{Bob}, 3) the same input and the output is the name
+\code{Carol}, and 4) the same input and the output is the name
+\code{Daniel}.
+
+%Instead of viewing the input and entire expected output from the
+%database as one test case, we analyze individual data records in the
+%actual and expected outputs to create row-based test cases. For
+%example, in Figure~\ref{fig:example-output}, we have four row-based
+%test cases: 1) the input \code{\$age=25, \$gender=`Female',
+%  \$country=`USA'} and the output of \code{Alice}'s record, 2) that
+%input and the absence of \code{Bob}'s, 3) that input and the output of
+%\code{Carol}'s, and 4) that input and the output of \code{Daniel}'s.
 
 (2) {\em Monitoring the execution of PHP and SQL entities via
-instrumentation.} The suspiciousness scores are given to PHP
-statements and SQL \code{WHERE} clause(s). Instead of passing the
-control to the database engine to execute an SQL command as in 
-%Clark {\em et al.}
-\cite{ga-ase11}, {\tool} instruments into an PHP interpreter the code
-to execute the SQL command (Figure~\ref{fig:SQL-Transformed}) and to
-observe the evaluation of the \code{WHERE} clause with respect to
-every row-based test case.  Because the \code{WHERE} clause's value
-decides if the output of a row-based test case is present or not,
-{\tool} needs to record if that clause is evaluated to \code{True} or
-\code{False}. From that, it knows which part (\code{True} or
-\code{False}) of~a \code{WHERE} clause is exercised for a row-based
-test case. Thus, the suspiciousness metric can now be applied not only
-to PHP code, but also to the deeper level of the two parts of a
-\code{WHERE} clause.
+  instrumentation.} We instrument into an PHP interpreter the code to
+execute the SQL query and to record the evaluation of the \code{WHERE}
+clause for each row-based test case. {\tool} will record the
+evaluation of a \code{WHERE} clause to \code{True} or \code{False} and
+the corresponding presence or absence of the output for a row-based
+test case. It then records the \code{True} or \code{False} part of the
+\code{WHERE} clause being exercised for that row-based test case.
+Therefore, the suspiciousness score can now be applied not only to PHP
+code, but also to the deeper level of the \code{True}/\code{False}
+parts of a \code{WHERE} clause. In brief, we now can assign the
+suspiciousness scores to PHP statements and \code{WHERE} clauses.
+
+
+%The suspiciousness scores are given to PHP statements and SQL
+%\code{WHERE} clause(s). Instead of passing the control to the database
+%engine to execute an SQL command as in \cite{ga-ase11}, {\tool}
+%instruments into an PHP interpreter the code to execute the SQL
+%command (Figure~\ref{fig:SQL-Transformed}) and to observe the
+%evaluation of the \code{WHERE} clause with respect to every row-based
+%test case. Because the \code{WHERE} clause's value decides if the
+%output of a row-based test case is present or not, {\tool} needs to
+%record if that clause is evaluated to \code{True} or
+%\code{False}. From that, it knows which part (\code{True} or
+%\code{False}) of~a \code{WHERE} clause is exercised for a row-based
+%test case. Thus, the suspiciousness metric can now be applied not only
+%to PHP code, but also to the deeper level of the two parts of a
+%\code{WHERE} clause.
 
 (3) {\em Row-based Slicing across PHP and SQL.} Since {\tool} uses
 row-based test cases, it needs to record the PHP statements that are
@@ -69,7 +91,8 @@ exercised in the execution of such a test case, i.e. the PHP
 statements that are involved in the output of a data record (i.e. a
 row). To do that, during the monitoring in step (2), it computes the
 forward slice corresponding to each data row across the PHP statements
-and the two parts of \code{WHERE}.
+and the two parts (\code{True}/\code{False}) of the \code{WHERE}
+clause.
 %To do that, {\tool} uses the statistical suspiciousness metric
 %Tarantula~\cite{tarantula05} to compute the suspiciousness scores for
 %all entities in PHP and in SQL \code{WHERE} clause(s). To avoid the
