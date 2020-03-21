@@ -1,9 +1,10 @@
 \subsection{Localizing a Faulty Predicate}
+\label{single-fault-section}
 
 %s with a Single Fault}
 
 \begin{table}
-    \footnotesize
+    \small
     \setlength{\tabcolsep}{1.5pt}
     \centering
     \caption{\tool{}'s fault localization using predicate switching}\label{tab:predicate-table}
@@ -59,7 +60,7 @@ The predicate table contains the evaluation results of individual
 (atomic) predicates in the \query{WHERE} clause. This information is
 recorded at run time as the instrumented PHP interpreter evaluates the
 predicates in the
-\query{WHERE} condition (see Section 3.1). In
+\query{WHERE} condition (see Section~\ref{monitoring-section}). In
 Table~\ref{tab:predicate-table}, the three predicates \code{Age $>$=
 25}, \code{Gender = `Female'}, and \code{Country $<>$ `USA'} are denoted
 by \code{P1}, \code{P2}, and {P3}, respectively. As seen, the
@@ -70,7 +71,7 @@ the \query{WHERE} expression for rows 1 and 4 evaluates to
 \code{False}, thus \code{Alice} and \code{Daniel} are not included in
 the returned result. The columns \code{Exp. Output} and
 \code{Passed/Failed} show the expected output and the passed/failed
-status of the corresponding row-based test case.
+status of the respective row-based test case.
 
 %If the actual output (column \code{Act. Output}) is the same as the expected output (column \code{Exp. Output}), the corresponding row (test case) will be marked as \code{Passed}; otherwise, it will be marked as \code{Failed} (column \code{Passed/Failed}).
 

@@ -6,20 +6,20 @@ incorrect output, \tool{} continues to examine the predicates in its
 \query{WHERE} clause to further localize the fault. 
 %Since the incorrect output is caused by the incorrect evaluation
 %results of the \query{WHERE} condition for some data record(s),
-It records the values of the predicates of the \code{WHERE}
-clause during the execution of an SQL query (Step 3, Section
-3.1). Then, given a failed test case, it detects the predicates
-whose values result in the incorrect output. To do this, it uses
-a \emph{predicate switching} technique with the following key idea: If
-the boolean value of a predicate after switching (i.e., \code{True}
-becomes \code{False}, or vice versa) leads to a different result of
-the \query{WHERE} expression, which makes a \emph{failed} test case
-become a \emph{passed} one, the original value of the predicate is
-likely to be incorrect. That is, such a predicate is highly
-associated with the erroneous output. Among all predicates in the
-\query{WHERE} clause, those whose switched values change the results
-of the most failed test cases will be the most likely ones to contain
-the fault(s).
+It records the values of the predicates of the \code{WHERE} clause
+during the execution of an SQL query (Step 3,
+Section~\ref{monitoring-section}). Then, given a failed test case, it
+detects the predicates whose values result in the incorrect output. To
+do this, it uses a \emph{predicate switching} technique with the
+following key idea: If the boolean value of a predicate after
+switching (i.e., \code{True} becomes \code{False}, or vice versa)
+leads to a different result of the \query{WHERE} expression, which
+makes a \emph{failed} test case become a \emph{passed} one, the
+original value of the predicate is likely to be incorrect. That is,
+such a predicate is highly associated with the erroneous output. Among
+all predicates in the \query{WHERE} clause, those whose switched
+values change the results of the most failed test cases will be the
+most likely ones to contain the fault(s).
 
 \input{solution-predicatefaults-single}
 
