@@ -33,6 +33,17 @@ PHP to motivate our approach. Third, we developed a novel row-based
 slicing across PHP and SQL. Finally, we conducted a more systematic
 evaluation in detecting faulty SQL predicates.
 
+ALTAR~\cite{altar-icst17} combines row-based dynamic slicing and delta
+debugging to localize faults in SQL predicates. They introduce a
+exoneration-based technique to isolate individual faulty clauses
+within WHERE predicates. It uses row-based dynamic slicing to discover
+suspicious clauses in WHERE predicates and removes non-faulty
+clauses using a technique inspired by delta debugging. Later version
+of ALTAR~\cite{altar-jss19} improves the exoneration-based technique
+to make it more time efficient. In comparison, {\tool} uses predicate
+switching that could be more effective than delta debugging for
+predicates. ALTAR does not localize bugs within PHP code.
+
 There exist fault-localization methods for single-language,
 {\em data-centric} programs~\cite{dor-issta08,litvak10,saha11}, which
 primarily interact with databases to get the data contents, process
@@ -49,11 +60,7 @@ in their method.
 %ones will be computed to identify fault statements. 
 However, they do not aim to support {\em multi-lingual} programs with
 database code embedded in a host program. 
-%%Their slicing cannot work across embedded SQL code.
-
-%In {\tool}, we apply the idea of using individual rows as test cases
-%as in their method.
-
+%
 That method belongs to a class of techniques using dynamic
 slicing~\cite{dor-issta08,litvak10,zhang-pldi04,cleve-icsm10}.
 The fault is likely to be in the statements in the
@@ -75,8 +82,8 @@ in ERP system domain~\cite{litvak10}.  Other methods rely on
 the differences between passing and failing
 runs~\cite{dallmeier-ecoop05,mani-ase10}.
 
-{\tool} is extended to support for SQL embedded in PHP code from a
-class of statistical fault localization
+{\tool} is extended to support for SQL from statistical
+fault localization
 methods~\cite{tarantula05,abreu-ochiai-07,liblit-pldi05}.
 %sober05, jones02
 %The idea is that the counts of the exercising of different code

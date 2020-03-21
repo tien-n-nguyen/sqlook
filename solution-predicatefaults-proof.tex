@@ -47,7 +47,7 @@ $\wedge$) and contains each predicate $P_*$ or $P_i$ exactly once,
 there always exists an operator $\odot$ having two operands $W_i$ and
 $W_*$ such that they are two boolean expressions, and $W_i$ contains
 $P_i$ and $W_*$ contains $P_*$.  Thus, the
-\query{WHERE} condition can always be expressed in the following form
+\query{WHERE} condition can be expressed in the following form
 $W = W_1 \odot (W_2 \odot \dots (W_i \odot W_*)\dots)$.  Since the two
 rows produce two different values for the \query{WHERE} expression
 ($A_p*$ on $R_p*$ and $E_p*$ on $R_{\overline{p*}}$), and $P_*$ is the
@@ -58,7 +58,7 @@ contradiction. Assume that the value of $W_*$ is the same on two rows,
 because all other predicates have the same values on two rows, the
 parts other than $W_*$ also have same values on two rows. Thus, the
 values of the \query{WHERE} clause on two rows are the same, which is
-a contradiction.
+a {\em contradiction}.
 
 If operator $\odot$ in $W_i \odot W_*$ is a logical \code{OR}, since the
 values of $W_*$ on $R_p*$ and $R_{\overline{p*}}$ are different, one
